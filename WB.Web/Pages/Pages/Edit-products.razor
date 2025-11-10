@@ -1,0 +1,447 @@
+@page "/edit-products"
+@using Soenneker.Blazor.TomSelect
+@using Soenneker.Blazor.TomSelect.Configuration
+@using Soenneker.Blazor.TomSelect.Enums
+@using FlatpickrBlazor
+@using FlatpickrBlazor.Components
+@using Blazored.TextEditor
+@using Soenneker.Blazor.FilePond
+@using Soenneker.Blazor.FilePond.Options
+@using Soenneker.Blazor.FilePond.Dtos
+@using Soenneker.Blazor.FilePond.Enums
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+    <!-- Quill CSS -->
+    <link rel="stylesheet" href="@($"{NavigationManager.BaseUri}assets/libs/quill/quill.snow.css")">
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Edit Product</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Ecommerce</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header Close -->
+
+    <!-- Start::row-1 -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-body add-products p-0">
+                    <div class="p-4">
+                        <div class="row gx-5">
+                            <div class="col-xxl-6 col-xl-12 col-lg-12 col-md-6">
+                                <div class="card custom-card shadow-none mb-0 border-0">
+                                    <div class="card-body p-0">
+                                        <div class="row gy-3">
+                                            <div class="col-xl-12">
+                                                <label for="product-name-add" class="form-label">Product Name</label>
+                                                <input type="text" class="form-control" id="product-name-add"
+                                                    placeholder="Name" value="Light Blue Sweat Shirt">
+                                                <label for="product-name-add"
+                                                    class="form-label mt-1 fs-12 op-5 text-muted mb-0">*Product Name
+                                                    should not exceed 30 characters</label>
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-category-add" class="form-label">Category</label>
+                                                    @if (isRendered)
+                                                    {
+                                                        <TomSelect TItem="SelectItem" Items="_selectedItems" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Category" Configuration="_configuration" />
+                                                    }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-gender-add" class="form-label">Gender</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems2" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options2" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-size-add" class="form-label">Size</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems3" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options3" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-brand-add" class="form-label">Brand</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems4" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options4" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6 color-selection">
+                                                <label for="product-color-add" class="form-label">Colors</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems7" TType="string" Multiple="true" @bind-Value="_selectedValue" Data="_options7" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="" Configuration="_configuration2" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-cost-add" class="form-label">Enter Cost</label>
+                                                <input type="text" class="form-control" id="product-cost-add"
+                                                    placeholder="Cost" value="$1299.99">
+                                                <label for="product-cost-add"
+                                                    class="form-label mt-1 fs-12 op-5 text-muted mb-0">*Mention final
+                                                    price of the product</label>
+                                            </div>
+                                            <div class="col-xl-12">
+                                                <label for="product-description-add" class="form-label">Product
+                                                    Description</label>
+                                                <textarea class="form-control" id="product-description-add"
+                                                    rows="2">Ultra Soft: The fabric is extremely soft and comfortable, keeping you at ease for hours</textarea>
+                                                <label for="product-description-add"
+                                                    class="form-label mt-1 fs-12 op-5 text-muted mb-0">*Description
+                                                    should not exceed 500 letters</label>
+                                            </div>
+                                            <div class="col-xl-12">
+                                                <label class="form-label">Product Features</label>
+                                                <div id="product-features">
+                                                    <BlazoredTextEditor @ref="@QuillHtml">
+                                                        <ToolbarContent>
+                                                            <span class="ql-formats">
+                                                                <select class="ql-header">
+                                                                    <option value="1"></option>
+                                                                    <option value="2"></option>
+                                                                    <option value="3"></option>
+                                                                    <option value="4"></option>
+                                                                    <option value="5"></option>
+                                                                    <option value="6"></option>
+                                                                    <option selected=""></option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <select class="ql-font">
+                                                                    <option selected=""></option>
+                                                                    <option value="serif"></option>
+                                                                    <option value="monospace"></option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <button class="ql-bold"></button>
+                                                                <button class="ql-italic"></button>
+                                                                <button class="ql-underline"></button>
+                                                                <button class="ql-strike"></button>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <button class="ql-blockquote"
+                                                                    value="blockquote"></button>
+                                                                <button class="ql-code-block"
+                                                                    value="code-block"></button>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <button class="ql-header" value="1"></button>
+                                                                <button class="ql-header" value="2"></button>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <button class="ql-list" value="ordered"></button>
+                                                                <button class="ql-list" value="bullet"></button>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <select class="ql-color"></select>
+                                                                <select class="ql-background"></select>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <select class="ql-align">
+                                                                    <option selected=""></option>
+                                                                    <option value="center"></option>
+                                                                    <option value="right"></option>
+                                                                    <option value="justify"></option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="ql-formats">
+                                                                <button class="ql-clean"></button>
+                                                            </span>
+                                                        </ToolbarContent>
+                                                        <EditorContent>
+                                                            <ul>
+                                                                <li>Care Instructions: Machine Wash</li>
+                                                                <li>Neckline: The pullover is framed with a Crew Neck
+                                                                </li>
+                                                                <li>Fit Type: Regular Fit</li>
+                                                                <li>Long Sleeves: The pullover is designed with Long
+                                                                    Sleeves.</li>
+                                                                <li>Soft Hand feel: The fabric is extremely soft and
+                                                                    comfortable, keeping you at ease for hours.</li>
+                                                                <li>Solid: The pullover is available in solid pattern.
+                                                                </li>
+                                                            </ul>
+                                                        </EditorContent>
+                                                    </BlazoredTextEditor>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-6 col-xl-12 col-lg-12 col-md-6">
+                                <div class="card custom-card shadow-none mb-0 border-0">
+                                    <div class="card-body p-0">
+                                        <div class="row gy-4">
+                                            <div class="col-xl-4">
+                                                <label for="product-actual-price" class="form-label">Actual
+                                                    Price</label>
+                                                <input type="text" class="form-control" id="product-actual-price"
+                                                    placeholder="Actual Price" value="$1,499.90">
+                                            </div>
+                                            <div class="col-xl-4">
+                                                <label for="product-dealer-price" class="form-label">Dealer
+                                                    Price</label>
+                                                <input type="text" class="form-control" id="product-dealer-price"
+                                                    placeholder="Dealer Price" value="$1,299.99">
+                                            </div>
+                                            <div class="col-xl-4">
+                                                <label for="product-discount" class="form-label">Discount</label>
+                                                <input type="text" class="form-control" id="product-discount"
+                                                    placeholder="Discount in %" value="0.75%">
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-type" class="form-label">Product Type</label>
+                                                <input type="text" class="form-control" id="product-type"
+                                                    placeholder="Type" value="Watch">
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-weight" class="form-label">Item Weight</label>
+                                                <input type="text" class="form-control" id="product-weight"
+                                                    placeholder="Weight in gms" value="180gms">
+                                            </div>
+                                            <div class="col-xl-12 product-documents-container">
+                                                <p class="fw-semibold mb-2 fs-14">Product Images :</p>
+                                                @if (isRendered)
+                                                {
+                                                    <FilePond @ref="FilePond" Options="_Productoptions"></FilePond>
+                                                }
+                                            </div>
+                                            <label class="form-label op-5 mt-3">Minimum 0f 6 images are need to be
+                                                uploaded,make sure the image size match the proper background size and
+                                                all images should be uniformly maintained with width and height to the
+                                                image container,image size should not exceed 2MB,once uploaded to change
+                                                the image you need to wait minimum of 24hrs. </label>
+                                            <div class="col-xl-12 product-documents-container">
+                                                <p class="fw-semibold mb-2 fs-14">Warrenty Documents :</p>
+                                                @if (isRendered)
+                                                {
+                                                    <FilePond @ref="FilePond2" Options="_Productoptions2"></FilePond>
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="publish-date" class="form-label">Publish Date</label>
+                                                <Flatpickr class="form-control" @ref="_flatpickr"
+                                                    placeholder="Choose date" value="2023-04-17" />
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="publish-time" class="form-label">Publish Time</label>
+                                                <Flatpickr class="form-control" @ref="_timepikcr"
+                                                    Options="@_timepikcrOptions" placeholder="Choose time"
+                                                    value="13:45" />
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-status-add" class="form-label">Published Status</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems5" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options5" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label for="product-tags" class="form-label">Product Tags</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems8" TType="string" Multiple="true" @bind-Value="_selectedValue" Data="_options8" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="" Configuration="_configuration2" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-12">
+                                                <label for="product-status-add1" class="form-label">Availability</label>
+                                                @if (isRendered)
+                                                {
+                                                    <TomSelect TItem="SelectItem" Items="_selectedItems6" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options6" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-4 py-3 border-top border-block-start-dashed d-sm-flex justify-content-end">
+                        <button class="btn btn-primary-light m-1">Add Product<i class="bi bi-plus-lg ms-2"></i></button>
+                        <button class="btn btn-success-light m-1">Save Product<i class="bi bi-download ms-2"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::row-1 -->
+
+</div>
+    <!-- Quill Editor JS -->
+    <script src="@($"{NavigationManager.BaseUri}assets/libs/quill/quill.js")"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+
+@code {
+    <!-- QuilEditor JS Start -->
+    BlazoredTextEditor?  QuillHtml;
+    <!-- QuilEditor JS Start -->
+
+    <!-- Flatpickr JS Start -->
+    public Flatpickr? _flatpickr;
+    public Flatpickr? _timepikcr;
+    private FlatpickrBlazor.FlatpickrOptions _timepikcrOptions = new FlatpickrBlazor.FlatpickrOptions
+    {
+        Inline = false,
+        EnableTime = true,
+        NoCalendar = true,
+        DateFormat = "H:i",
+    };    
+    <!-- Flatpickr JS Start -->
+    
+    // Filepond Start //
+    private FilePond? FilePond { get; set; }
+    private readonly FilePondOptions _Productoptions = new()
+    {
+        MaxFiles = 20,
+        AllowMultiple = true,
+    };
+    // Filepond End //
+
+    // Filepond Start //
+    private FilePond? FilePond2 { get; set; }
+    private readonly FilePondOptions _Productoptions2 = new()
+    {
+        MaxFiles = 20,
+        AllowMultiple = true,
+    };
+    // Filepond End //
+    
+    private TomSelect<SelectItem, string> _selectedValue = default!;
+    private List<SelectItem>? _options;    
+    private List<SelectItem>? _options2;    
+    private List<SelectItem>? _options3;    
+    private List<SelectItem>? _options4;    
+    private List<SelectItem>? _options5;    
+    private List<SelectItem>? _options6;    
+    private List<SelectItem>? _options7;    
+    private List<SelectItem>? _options8;    
+    private List<SelectItem> _selectedItems = new List<SelectItem>();   
+    private List<SelectItem> _selectedItems2 = new List<SelectItem>();   
+    private List<SelectItem> _selectedItems3 = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems4 = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems5 = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems6 = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems7 = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems8 = new List<SelectItem>();  
+    public class SelectItem
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public bool Selected { get; set; }
+    } 
+    private readonly TomSelectConfiguration _configuration = new()
+    {
+        Plugins = new List<TomSelectPluginType> { TomSelectPluginType.DropdownInput }
+    };
+    private readonly TomSelectConfiguration _configuration2 = new()
+    {
+        Plugins = new List<TomSelectPluginType> { TomSelectPluginType.RemoveButton }
+    };
+    private bool isRendered = false;  
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isRendered = true;
+            await Task.Delay(0);
+            StateHasChanged(); 
+        }
+    }
+    protected override void OnInitialized() {
+
+        _options = new List<SelectItem>
+        {
+            new SelectItem { Id = "Clothing", Name = "Clothing" },
+            new SelectItem { Id = "Footwear", Name = "Footwear" },
+            new SelectItem { Id = "Accesories", Name = "Accesories" },
+            new SelectItem { Id = "Grooming", Name = "Grooming" },
+            new SelectItem { Id = "Ethnic & Festive", Name = "Ethnic & Festive" },
+            new SelectItem { Id = "Jewellery", Name = "Jewellery" },
+            new SelectItem { Id = "Toys & Babycare", Name = "Toys & Babycare" },
+            new SelectItem { Id = "Festive Gifts", Name = "Festive Gifts" },
+            new SelectItem { Id = "Kitchen", Name = "Kitchen" },
+            new SelectItem { Id = "Dining", Name = "Dining" },
+            new SelectItem { Id = "Home Decors", Name = "Home Decors" },
+            new SelectItem { Id = "Stationery", Name = "Stationery" },
+        };
+        _selectedItems = _options.Take(1).ToList(); 
+         _options2 = new List<SelectItem>
+        {
+            new SelectItem { Id = "All", Name = "All" },
+            new SelectItem { Id = "Male", Name = "Male" },
+            new SelectItem { Id = "Female", Name = "Female" },
+            new SelectItem { Id = "Others", Name = "Others" },
+        };
+        _selectedItems2 = _options2.Take(1).ToList(); 
+         _options3 = new List<SelectItem>
+        {
+            new SelectItem { Id = "Extra Small", Name = "Extra Small" },
+            new SelectItem { Id = "Small", Name = "Small" },
+            new SelectItem { Id = "Medium", Name = "Medium" },
+            new SelectItem { Id = "Large", Name = "Large" },
+            new SelectItem { Id = "Extra Large", Name = "Extra Large" },
+        };
+        _selectedItems3 = _options3.Take(1).ToList(); 
+         _options4 = new List<SelectItem>
+        {
+            new SelectItem { Id = "Armani", Name = "Armani" },
+            new SelectItem { Id = "Lacoste", Name = "Lacoste" },
+            new SelectItem { Id = "Puma", Name = "Puma" },
+            new SelectItem { Id = "Spykar", Name = "Spykar" },
+            new SelectItem { Id = "Mufti", Name = "Mufti" },
+            new SelectItem { Id = "Home Town", Name = "Home Town" },
+            new SelectItem { Id = "Arrabi", Name = "Arrabi" },
+        };
+        _selectedItems4 = _options4.Take(1).ToList(); 
+        _options5 = new List<SelectItem>
+        {
+            new SelectItem { Id = "Published", Name = "Published" },
+            new SelectItem { Id = "Scheduled", Name = "Scheduled" },
+        };
+        _selectedItems5 = _options5.Take(1).ToList(); 
+        _options6 = new List<SelectItem>
+        {
+            new SelectItem { Id = "In Stock", Name = "In Stock" },
+            new SelectItem { Id = "Out Of Stock", Name = "Out Of Stock" },
+        };
+        _selectedItems6 = _options6.Take(1).ToList();  
+        _options7 = new List<SelectItem>
+        {
+            new SelectItem { Id = "White", Name = "White" },
+            new SelectItem { Id = "Black", Name = "Black" },
+            new SelectItem { Id = "Red", Name = "Red" },
+            new SelectItem { Id = "Orange", Name = "Orange" },
+            new SelectItem { Id = "Yellow", Name = "Yellow" },
+            new SelectItem { Id = "Green", Name = "Green" },
+            new SelectItem { Id = "Blue", Name = "Blue" },
+            new SelectItem { Id = "Pink", Name = "Pink" },
+            new SelectItem { Id = "Purple", Name = "Purple" },
+        };
+        _selectedItems7 = _options7.Take(2).ToList();  
+
+        _options8 = new List<SelectItem>
+        {
+            new SelectItem { Id = "Relaxed", Name = "Relaxed" },
+            new SelectItem { Id = "Plain", Name = "Plain" },
+            new SelectItem { Id = "Solid", Name = "Solid" },
+            new SelectItem { Id = "Washed", Name = "Washed" },
+        };
+        _selectedItems8 = _options8.Take(2).ToList();  
+    }
+
+}

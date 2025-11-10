@@ -1,0 +1,272 @@
+﻿@page "/package-create"
+@using Soenneker.Blazor.TomSelect
+@using Soenneker.Blazor.TomSelect.Configuration
+@using Soenneker.Blazor.TomSelect.Enums
+@using FlatpickrBlazor
+@using FlatpickrBlazor.Components
+@using Soenneker.Blazor.FilePond
+@using Soenneker.Blazor.FilePond.Options
+@using Soenneker.Blazor.FilePond.Dtos
+@using Soenneker.Blazor.FilePond.Enums
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+    <!-- Quill CSS -->
+    <link rel="stylesheet" href="@($"{NavigationManager.BaseUri}assets/libs/quill/quill.snow.css")">
+
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+                <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Create Package</h1>
+                    <div class="ms-md-1 ms-0">
+                        <nav>
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Home</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Packages</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Create Package</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                <!-- Page Header Close -->
+
+                <!-- Start::row-1 -->
+                <div class="row">
+                    <div class="col-xxl-9 col-xl-8">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                        Create Package
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row gy-3">
+                                    <div class="col-xl-4">
+                                        <label for="input-label" class="form-label">Package Name (En) </label>
+                                        <input type="text" class="form-control" id="input-label" placeholder="Enter Package Name (En)">
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label for="input-label11" class="form-label">Package Name (Ar) </label>
+                                        <input type="text" class="form-control" id="input-label14231" placeholder="Enter Package Name (Ar)">
+                                    </div>
+                                    <div class="col-xl-4">
+                            <div class="form-check form-check-lg">
+                                            <p class="mb-3 px-0 text-muted">Is Active</p>
+                                            <input class="form-check-input ms-2" type="checkbox" value="" checked="">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label class="form-label">Policy Duration </label>
+                                        @if (isRendered)
+                                        {
+                                            <TomSelect TItem="SelectItem" Items="_selectedItems" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label for="input-label11" class="form-label">Age of Insured </label>
+                                        <input type="text" class="form-control" id="input-label1143" placeholder="Enter age">
+                                    </div>
+                                    <div class="col-xl-4">
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label class="form-label">Car Make </label>
+                                        @if (isRendered)
+                                        {
+                                            <TomSelect TItem="SelectItem" Items=_selectedItems4  TType="string" Multiple="true" @bind-Value="_selectedValue" AllowEmptyOption=true Data="_options4"  TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Open this select menu" Create="true" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label class="form-label">Car Make From </label>
+                                        @if (isRendered)
+                                        {
+                                            <TomSelect TItem="SelectItem" Items="_selectedItems2" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options2" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <label class="form-label">Car Make To</label>
+                                        @if (isRendered)
+                                        {
+                                            <TomSelect TItem="SelectItem" Items="_selectedItems2" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options2" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                                        }
+                                    </div>
+                        <div class="col-xl-4">
+                            <label for="Company-Name" class="form-label">Min Premium (KWD)</label>
+                            <input type="number" class="form-control" id="input-numberadasdua" placeholder="">
+                        </div>
+                        <div class="col-xl-4">
+                            <label for="Company-Name" class="form-label">Comission %</label>
+                            <input type="number" class="form-control" id="input-number78asde" placeholder="">
+                        </div>
+                        <div class="col-xl-4">
+                            <label for="Company-Name" class="form-label">Insurance Fee (KWD)</label>
+                            <input type="number" class="form-control" id="input-number7bhsde" placeholder="">
+                        </div>
+                        <div class="col-xl-6">
+                                        <label for="job-description" class="form-label">Terms & Conditions (En) </label>
+                                        <textarea class="form-control" id="job-description" rows="4">Lorem ipsum dolor sit amet consectetur adipisicing elit. At sit impedit, officiis non minima saepe voluptates a magnam enim sequi porro veniam ea suscipit dolorum vel mollitia voluptate iste nemo!</textarea>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label for="job-description" class="form-label">Terms & Conditions (Ar) </label>
+                                        <textarea class="form-control" id="job-description" rows="4">Lorem ipsum dolor sit amet consectetur adipisicing elit. At sit impedit, officiis non minima saepe voluptates a magnam enim sequi porro veniam ea suscipit dolorum vel mollitia voluptate iste nemo!</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-primary-light btn-wave ms-auto float-end">Create Project</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xxl-3 col-xl-4">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">Sum Insured</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row gy-3">
+                                    <div class="col-xl-12">
+                            <label for="Company-Name" class="form-label">Min (KWD)</label>
+                            <input type="number" class="form-control" id="input-numberasfanm" placeholder="">
+                                    </div>                       
+                                    <div class="col-xl-12">
+                            <label for="Company-Name" class="form-label">Max (KWD)</label>
+                            <input type="number" class="form-control" id="input-numberui9qw" placeholder="">
+                                    </div>             
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">Risk Rate %</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row gy-3">
+                                    <div class="col-xl-12">
+                            <label for="Company-Name" class="form-label">Min %</label>
+                            <input type="number" class="form-control" id="input-numberadasd" placeholder="">
+                                    </div>                       
+                                    <div class="col-xl-12">
+                            <label for="Company-Name" class="form-label">Max %</label>
+                            <input type="number" class="form-control" id="input-numberasde" placeholder="">
+                                    </div>             
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--End::row-1 -->
+
+            </div>
+
+    <!-- Quill Editor JS -->
+    <script src="@($"{NavigationManager.BaseUri}assets/libs/quill/quill.js")"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+
+@code {
+    <!-- Flatpickr JS Start -->
+    public Flatpickr? _flatpickr;
+    <!-- Flatpickr JS End -->
+
+    <!-- QuilEditor JS Start -->
+    BlazoredTextEditor?  QuillHtml;
+    <!-- QuilEditor JS Start -->
+
+    private TomSelect<SelectItem, string> _selectedValue = default!;
+    private List<SelectItem>? _options;    
+    private List<SelectItem>? _options2;    
+    private List<SelectItem>? _options3;     
+    private List<SelectItem>? _options4;  
+    private List<SelectItem> _selectedItems = new List<SelectItem>();  
+    private List<SelectItem> _selectedItems2 = new List<SelectItem>();   
+    private List<SelectItem> _selectedItems3 = new List<SelectItem>();     
+    private List<SelectItem> _selectedItems4 = new List<SelectItem>(); 
+    public class SelectItem
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public bool Selected { get; set; }
+    }      
+    private readonly TomSelectConfiguration _configuration = new()
+    {
+        Plugins = new List<TomSelectPluginType> { TomSelectPluginType.DropdownInput }
+    };
+    private readonly TomSelectConfiguration _configuration2 = new()
+    {
+        Plugins = new List<TomSelectPluginType> { TomSelectPluginType.RemoveButton }
+    };
+    private bool isRendered = false;  
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isRendered = true;
+            await Task.Delay(0);
+            StateHasChanged(); 
+        }
+    }    
+
+    // Filepond Start //
+    private FilePond? FilePond { get; set; }
+    private readonly FilePondOptions _Attachmentsoptions = new()
+    {
+        MaxFiles = 20,
+        AllowMultiple = true,
+        EnabledPlugins = [FilePondPluginType.ImagePreview, FilePondPluginType.MediaPreview]
+    };
+    // Filepond End //
+    protected override void OnInitialized() {
+        _options = new List<SelectItem>
+        {
+            new SelectItem { Id = "1", Name = "1 Year" },
+            new SelectItem { Id = "2", Name = "2 Years" },
+            new SelectItem { Id = "3", Name = "3 Years" },
+        };
+        _selectedItems = _options.Take(1).ToList();  
+        _options2 = new List<SelectItem>
+        {
+            new SelectItem { Id = "2010", Name = "2010" },
+            new SelectItem { Id = "2011", Name = "2011" },
+            new SelectItem { Id = "2012", Name = "2012" },
+            new SelectItem { Id = "2013", Name = "2013" },
+            new SelectItem { Id = "2014", Name = "2014" },
+            new SelectItem { Id = "2015", Name = "2015" },
+            new SelectItem { Id = "2016", Name = "2016" },
+            new SelectItem { Id = "2017", Name = "2017" },
+            new SelectItem { Id = "2018", Name = "2018" },
+            new SelectItem { Id = "2019", Name = "2019" },
+            new SelectItem { Id = "2020", Name = "2020" },
+            new SelectItem { Id = "2021", Name = "2021" },
+            new SelectItem { Id = "2022", Name = "2022" },
+            new SelectItem { Id = "2023", Name = "2023" },
+            new SelectItem { Id = "2024", Name = "2024" },
+            new SelectItem { Id = "2025", Name = "2025" },
+        };
+        _selectedItems2 = _options2.Take(1).ToList();  
+        _options3 = new List<SelectItem>
+        {
+            new SelectItem { Id = "1", Name = "Angelina May" },
+            new SelectItem { Id = "2", Name = "Alexa Biss" },
+            new SelectItem { Id = "3", Name = "Alex Carey" },
+            new SelectItem { Id = "4", Name = "Kiara advain" },
+            new SelectItem { Id = "5", Name = "Hercules Jhon" },
+            new SelectItem { Id = "6", Name = "Mayor Kim" },
+            new SelectItem { Id = "7", Name = "Karley Dia" },
+            new SelectItem { Id = "8", Name = "Kim Jong" },
+            new SelectItem { Id = "9", Name = "Darren Sami" },
+            new SelectItem { Id = "10", Name = "Elizabeth" },
+            new SelectItem { Id = "11", Name = "Bear Gills" },
+        };
+        _selectedItems3 = _options3.Take(3).ToList();  
+        _options4 = new List<SelectItem>
+        {
+            new SelectItem { Id = "Toyota", Name = "Toyota" },
+            new SelectItem { Id = "Nissan", Name = "Nissan" },
+            new SelectItem { Id = "Audi", Name = "Audi" },
+            new SelectItem { Id = "BMW", Name = "BMW" },
+            new SelectItem { Id = "Honda", Name = "Honda" },
+        };
+        _selectedItems4 = _options4.Take(2).ToList();  
+    }
+    
+}

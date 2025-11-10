@@ -1,0 +1,162 @@
+﻿@page "/organization-detail/{OrganizationId}"
+@using WB.Shared.Enums
+@layout MainLayout
+
+<PageTitle>View Organization</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">View Organization</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Home</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Organizations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">View Organization</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="card custom-card">
+        <div class="card-body">
+            <div class="card custom-card mt-3">
+                <div class="card-header">
+                    <div class="card-title">Organization Detail</div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Created Date</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.CreatedDate</span>
+                        </div>
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Last Modified Date</label>
+                            <span class="fs-12 text-muted">@(OrganizationDetail.ModifiedDate != null ? OrganizationDetail.ModifiedDate : "N/A")</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Organization Type</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.TypeName</span>
+                        </div>
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Status</label>
+                            <span class="fs-12 text-muted">@(OrganizationDetail.IsActive ? "Active" : "In Active")</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Organization Name (English)</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.NameEn</span>
+                        </div>
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Organization Name (Arabic)</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.NameAr</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Description</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.Description</span>
+                        </div>
+                        <div class="col-xl-6">
+                            <label class="form-label d-block">Organization Logo</label>
+                            <span class="fs-12 text-muted">@OrganizationDetail.Logo</span>
+                        </div>
+                    </div>
+                    @if (OrganizationDetail.TypeId != (int)GeneralEnums.OrganizationTypeEnum.Internal)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Brokerage Code</label>
+                                <span class="fs-12 text-muted">@OrganizationDetail.BrokerageCode</span>
+                            </div>
+                        </div>
+
+                        <div class="card custom-card">
+                            <div class="card-body">
+                                <div class="card custom-card mt-3">
+                                    <div class="card-header">
+                                        <div class="card-title">Payment Methods</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-12">
+
+                                                @foreach (var pm in OrganizationDetail.PaymentMethods)
+                                                {
+                                                    <div class="row mb-2 align-items-center">
+                                                        <div class="col-xl-3">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input form-checked" type="checkbox" checked disabled />
+                                                                <label class="form-check-label" for="pm_@pm.MethodId">
+                                                                    @pm.MethodName
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-9">
+                                                            <div class="row">
+                                                                <div class="col-xl-12">
+                                                                    @switch ((GeneralEnums.PaymentMethodEnum)pm.MethodId)
+                                                                    {
+                                                                        case GeneralEnums.PaymentMethodEnum.Cash:
+                                                                            <label class="form-label d-block">Client Code</label>
+                                                                            <span class="fs-12 text-muted">@pm.Code</span>
+                                                                            break;
+                                                                        case GeneralEnums.PaymentMethodEnum.Credit:
+                                                                            <label class="form-label d-block">Credit Code</label>
+                                                                            <span class="fs-12 text-muted">@pm.Code</span>
+                                                                            break;
+                                                                        default:
+                                                                            <label class="form-label d-block">Code</label>
+                                                                            <span class="fs-12 text-muted">@pm.Code</span>
+                                                                            break;
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-check">
+                                    <input class="form-check-input form-checked" @bind-value="@OrganizationDetail.IsDirectPurchaseAllowed" type="checkbox" checked disabled />
+                                    <label class="form-label">Is Direct Purchase Allowed</label>
+                                </div>
+                            </div>
+                            </div>
+                    }
+
+                </div>
+            </div>
+            <div class="card custom-card mt-3">
+                <div class="card-header">
+                    <div class="card-title">LOB Details</div>
+                </div>
+                <div class="card-body">
+                </div>
+            </div>
+            @if (OrganizationDetail.TypeId != (int)GeneralEnums.OrganizationTypeEnum.Internal)
+            {
+                <div class="card custom-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">Product Package Details</div>
+                    </div>
+                    <div class="card-body">
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="d-flex justify-content-end mt-3 gap-3 pb-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" ButtonType="ButtonType.Button" Click="@(() => navigationManager.NavigateTo($"/save-organization/{OrganizationDetail.Id.ToString()}"))" />
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@(() => navigationManager.NavigateTo($"/organizations/{OrganizationDetail.TypeId}"))" />
+    </div>
+</div>

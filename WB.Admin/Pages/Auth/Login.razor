@@ -1,0 +1,125 @@
+﻿@page "/login"
+@using System.Text.Json
+@using System.Text
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Radzen.Blazor
+@using WB.Admin.Pages.Common
+@using WB.Shared.Dtos.UMS.RequestDtos
+@using WMBlazorSlickCarousel.WMBSC
+@using static WB.Shared.Enums.UmsEnums
+@layout CustomLayout
+<link href="_content/WMBlazorSlickCarousel/WMBlazorSlickCarousel.bundle.scp.css" rel="stylesheet">
+
+@if (showLogin || showAdminCreation)
+{
+    <div class="container">
+        <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
+            <div class="@(!showLogin ? "col-xxl-7 col-xl-7 col-lg-7 col-md-10 col-sm-12 col-12" : "col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12")">
+                <div class="card custom-card">
+                    <div class="card-body p-5">
+                        <div class="mb-5 d-flex justify-content-center">
+                            <a href="javascript:void(0)">
+                                <img src="../assets/images/brand-logos/desktop-logo.png" alt="logo" class="desktop-logo">
+                                <img src="../assets/images/brand-logos/desktop-dark.png" alt="logo" class="desktop-dark">
+                            </a>
+                        </div>
+                        @if (showLogin)
+                        {
+                            <p class="h5 fw-semibold mb-2">@translationState.Translate("Sign_In")</p>
+                            <p class="mb-5 text-muted op-7 fw-normal">@translationState.Translate("Welcome_Back")</p>
+                            <RadzenTemplateForm TItem="LoginRequestDto" Data="loginModel" Submit="HandleLogin">
+                                <ChildContent>
+                                    <DataAnnotationsValidator />
+                                    <div class="row gy-3">
+                                        <div class="col-xl-12 mt-0">
+                                            <label for="signin-username" class="form-label text-default">@translationState.Translate("Email") *</label>
+                                            <RadzenTextBox Name="Email" @bind-Value="loginModel.Username" class="form-control" id="signin-username" placeholder="@translationState.Translate("Enter_Your_Email")" />
+                                            <RadzenRequiredValidator Component="Email" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenEmailValidator Component="Email" Text="@translationState.Translate("Provide_Valid_Email")" />
+                                        </div>
+                                        <div class="col-xl-12 mb-3">
+                                            <label for="signin-password" class="form-label text-default d-block">@translationState.Translate("Password") *<a href="javascript:void(0)" @onclick="OpenForgetPasswordDialog" class="float-end text-danger">@translationState.Translate("Forgot_Your_Password")</a></label>
+                                            <PasswordToggle @bind-Password="loginModel.Password" />
+                                        </div>
+                                        <div class="col-xl-12 d-grid mt-2">
+                                            <div class="alert alert-danger" role="alert" style="display:@(string.IsNullOrEmpty(errorMessage) ? "none" : "block")">@errorMessage</div>
+                                            @if (loginFailedResponse.ErrorCode == Enum.GetName(LoginErrorEnum.UserEmailNotConfirmed))
+                                            {
+                                                <div class="d-grid mb-3">
+                                                    <RadzenButton class="btn btn-primary btn-lg cursor-none" ButtonType="ButtonType.Button" Click="ResendConfirmationLink"> @translationState.Translate("Resend_Link") </RadzenButton>
+                                                </div>
+                                            }
+                                            <RadzenButton class="btn btn-lg btn-primary" ButtonType="ButtonType.Submit"> @translationState.Translate("Log_In") </RadzenButton>
+                                        </div>
+                                    </div>
+                                </ChildContent>
+                            </RadzenTemplateForm>
+                        }
+                        else
+                        {
+                            <p class="h5 fw-semibold mb-2">@translationState.Translate("Create_Admin_Title")</p>
+                            <p class="mb-5 text-muted op-7 fw-normal">@translationState.Translate("Welcome")</p>
+                            <RadzenTemplateForm @ref="userForm" TItem="CreateAdminRequestDto" Data="userDetail" Submit="FormSubmitUser">
+                                <div class="row gy-3">
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <RadzenLabel class="form-label text-default" Text="@(translationState.Translate("FistNameEn") + " *")" />
+                                        <RadzenTextBox class="form-control" Trim Name="FistNameEn" Placeholder="@translationState.Translate("FistNameEn")" @bind-Value="userDetail.FirstNameEn" />
+                                        <RadzenRequiredValidator Component="FistNameEn" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="FistNameEn" Text="@translationState.Translate("Only_English_Characters_Allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                                        <RadzenRegexValidator Component="FistNameEn" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="FistNameEn" Text="@translationState.Translate("Only_100_Characters_Allowed")" Max="100" />
+                                    </div>
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <RadzenLabel class="form-label text-default" Text="@(translationState.Translate("FistNameAr") + " *")" />
+                                        <RadzenTextBox class="form-control" Trim Name="FistNameAr" Placeholder="@translationState.Translate("FistNameAr")" @bind-Value="userDetail.FirstNameAr" />
+                                        <RadzenRequiredValidator Component="FistNameAr" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="FistNameAr" Text="@translationState.Translate("Only_Arabic_Characters_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                                        <RadzenRegexValidator Component="FistNameAr" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="FistNameAr" Text="@translationState.Translate("Only_100_Characters_Allowed")" Max="100" />
+                                    </div>
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <RadzenLabel class="form-label text-default" Text="@(translationState.Translate("LastNameEn") + " *")" />
+                                        <RadzenTextBox class="form-control" Trim Name="LastNameEn" Placeholder="@translationState.Translate("LastNameEn")" @bind-Value="userDetail.LastNameEn" />
+                                        <RadzenRequiredValidator Component="LastNameEn" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="LastNameEn" Text="@translationState.Translate("Only_English_Characters_Allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                                        <RadzenRegexValidator Component="LastNameEn" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="LastNameEn" Text="@translationState.Translate("Only_100_Characters_Allowed")" Max="100" />
+                                    </div>
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <RadzenLabel class="form-label text-default" Text="@(translationState.Translate("LastNameAr") + " *")" />
+                                        <RadzenTextBox class="form-control" Trim Name="LastNameAr" Placeholder="@translationState.Translate("LastNameAr")" @bind-Value="userDetail.LastNameAr" />
+                                        <RadzenRequiredValidator Component="LastNameAr" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="LastNameAr" Text="@translationState.Translate("Only_Arabic_Characters_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                                        <RadzenRegexValidator Component="LastNameAr" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="LastNameAr" Text="@translationState.Translate("Only_100_Characters_Allowed")" Max="100" />
+                                    </div>
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <label for="signin-username" class="form-label text-default">@translationState.Translate("Email") *</label>
+                                        <RadzenTextBox Name="Email" @bind-Value="userDetail.Email" class="form-control" id="signin-username" placeholder="@translationState.Translate("Enter_Your_Email")" />
+                                        <RadzenRequiredValidator Component="Email" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenEmailValidator Component="Email" Text="@translationState.Translate("Provide_Valid_Email")" />
+                                    </div>
+                                    <div class="col-xl-6 mt-0 mb-3">
+                                        <label for="signin-password" class="form-label text-default d-block">@translationState.Translate("Password") *<a href="javascript:void(0)" @onclick="OpenForgetPasswordDialog" class="float-end text-danger">@translationState.Translate("Forgot_Your_Password")</a></label>
+                                        <PasswordToggle @bind-Password="userDetail.Password" ShowPasswordCriteria="true" />
+                                    </div>
+                                    <div class="col-xl-12 d-grid">
+                                        <div class="alert alert-danger" role="alert" style="display:@(string.IsNullOrEmpty(errorMessage) ? "none" : "block")">@errorMessage</div>
+                                        <RadzenButton class="btn btn-lg btn-primary" ButtonType="ButtonType.Submit"> @translationState.Translate("Submit") </RadzenButton>
+                                    </div>
+                                </div>
+                            </RadzenTemplateForm>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (showError)
+{
+    <ServerError IsDatabaseError="@IsDatabaseError" />
+}

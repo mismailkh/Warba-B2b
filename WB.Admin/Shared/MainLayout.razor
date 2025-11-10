@@ -1,0 +1,303 @@
+﻿@inherits LayoutComponentBase
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager // This line is used to generate 
+@inject StateService stateService
+@using BlazorColorPicker
+@using WB.Admin.Pages.Auth
+@using WB.Admin.Pages.Common
+@using WB.Shared.Dtos
+@using WB.Shared.Dtos.General.ResponseDtos
+@using WB.Shared.Dtos.UMS.ResponseDtos
+@inject IColorPickerService ColorPickerService
+@inject SessionService _sessionService
+
+@inject SessionService _sessionService
+@attribute [Authorize]
+
+<RadzenDialog />
+<RadzenNotification />
+<Spinner />
+<AuthorizeView>
+    <Authorized>
+        @if (loginState.UserDetail != null)
+        {
+
+            <div class="page">
+                <Switcher />
+
+                <MainHeader />
+
+                <NavMenu @ref="navMenuRef" />
+
+                <!-- Start::app-content -->
+                <div class="main-content app-content" @onclick="() => icontextCloseFn()">
+                    @Body
+                </div>
+
+                <Footer />
+
+                <Modal />
+
+                @if (ShowButton)
+                {
+                    <!-- Scroll To Top -->
+                    <div class="scrollToTop" @onclick="ScrollToTop">
+                        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+                    </div>
+                    <!-- Scroll To Top -->
+                }
+
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>
+
+<BlazorColorPicker.ColorPicker />
+
+
+@code {
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var user = (await localStorage.GetAsync<string>("Username")).Value ?? "";
+            if (!loginState.IsLoggedIn)
+            {
+                spinnerService.Show();
+                loginState.Token = (await localStorage.GetAsync<string>("Token")).Value ?? "";
+                loginState.RefreshToken = (await localStorage.GetAsync<string>("RefreshToken")).Value ?? "";
+                loginState.Username = user;
+                loginState.ProfilePicUrl = (await localStorage.GetAsync<string>("ProfilePicUrl")).Value ?? "";
+                loginState.UserDetail = (await localStorage.GetAsync<UserDetailLoginResponseDto>("UserDetail")).Value;
+                if (!String.IsNullOrEmpty(user))
+                {
+                    var response = await apiHelper.SendGetAsync<List<ClaimSucessResponse>>($"Auth/GetUserAssignedClaims?userId=" + loginState.UserDetail?.UserId);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        loginState.ClaimList = (List<ClaimSucessResponse>)response.ResultData;
+                    }
+                    else
+                    {
+                        loginState.ClaimList = new List<ClaimSucessResponse>();
+                        DeleteBrowserStorageValues();
+                        loginState.IsLoggedIn = false;
+                        loginState.IsStateChecked = true;
+                        spinnerService.Hide();
+                        return;
+                    }
+                    response = await apiHelper.SendGetAsync<List<UserAssignedRoleResponseDto>>($"Roles/GetUserRoles?userId=" + loginState.UserDetail.UserId);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        loginState.UserRoles = (List<UserAssignedRoleResponseDto>)response.ResultData;
+
+                        // Get Role claims by using RoleId's
+                        await GetUserRoleClaimsByUsingRoleId(loginState.UserRoles?.Select(x => x.RoleId).ToList());
+                    }
+                    else
+                    {
+                        loginState.ClaimList = new List<ClaimSucessResponse>();
+                        DeleteBrowserStorageValues();
+                        loginState.IsLoggedIn = false;
+                        loginState.IsStateChecked = true;
+                        spinnerService.Hide();
+                        return;
+                    }
+
+                    if (translationState.Translations == null)
+                    {
+                        response = await apiHelper.SendGetAsync<List<TranslationResponseDto>>($"Translations/GetTranslationsList");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            translationState.Translations = (List<TranslationResponseDto>)response.ResultData;
+                        }
+                        else
+                        {
+                            // translationState.TranslationList = new List<TranslationSucessResponse>();
+                        }
+                    }
+
+                    loginState.IsLoggedIn = true;
+                    loginState.IsStateChecked = true;
+                    spinnerService.Hide();
+                    await InvokeAsync(StateHasChanged);
+                    if (navigationManager.Uri.Contains("login") || navigationManager.Uri.Contains("reset-password"))
+                    {
+                        navigationManager.NavigateTo("/dashboard");
+                    }
+                }
+                else
+                {
+                    spinnerService.Hide();
+                    loginState.IsLoggedIn = false;
+                    loginState.IsStateChecked = true;
+                    if (!navigationManager.Uri.Contains("reset-password"))
+                    {
+                        navigationManager.NavigateTo("login");
+                    }
+                }
+            }
+            else
+            {
+                ForceLogOutSpecificUser(user);
+                loginState.IsLoggedIn = false;
+                loginState.IsStateChecked = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            spinnerService.Hide();
+            loginState.IsLoggedIn = false;
+            loginState.IsStateChecked = true;
+        }
+    }
+    protected async void ForceLogOutSpecificUser(string user)
+    {
+        try
+        {
+            var securityStamp = (await localStorage.GetAsync<string>("SecurityStamp")).Value ?? "";
+            var response = await apiHelper.SendGetAsync<SecurityStampResponseDto>($"Auth/GetSecurityStampByEmail?userId={user}");
+            if (response.IsSuccessStatusCode)
+            {
+                var originalSecurityStamp = (SecurityStampResponseDto)response.ResultData;
+                if (securityStamp != originalSecurityStamp.SecurityStamp)
+                {
+                    notificationService.Notify(new NotificationMessage()
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Detail = translationState.Translate("User_Permissions_Updated_Redirect_Login"),
+                        });
+                    await Task.Delay(4000);
+                    loginState.SetLogout(false);
+                    DeleteBrowserStorageValues();
+                    navigationManager.NavigateTo("Login", true);
+                    return;
+                }
+            }
+        }
+        catch (JSDisconnectedException ex)
+        {
+
+        }
+    }
+    protected async void DeleteBrowserStorageValues()
+    {
+        try
+        {
+            await ((CustomAuthenticationStateProvider)authStateProvider).MarkUserAsLoggedOut();
+            loginState.SetLogout(false);
+            await localStorage.DeleteAsync("Token");
+            await localStorage.DeleteAsync("RefreshToken");
+            await localStorage.DeleteAsync("Username");
+            await localStorage.DeleteAsync("SecurityStamp");
+            await localStorage.DeleteAsync("UserDetail");
+            await localStorage.DeleteAsync("ProfilePicUrl");
+            await localStorage.DeleteAsync("SessionTimeout");
+            navigationManager.NavigateTo("/login");
+        }
+        catch (JSDisconnectedException ex)
+        {
+        }
+    }
+
+    #region Get User Role Claims By Using RoleIds
+    protected async Task GetUserRoleClaimsByUsingRoleId(List<string> roleId)
+    {
+        try
+        {
+            var response = await apiHelper.SendAsync<List<string>, List<ClaimSucessResponse>>(HttpMethod.Post, "Roles/GetUserRoleClaimsByUsingRoleId", roleId, true);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = (List<ClaimSucessResponse>)response.ResultData;
+                if (result.Count() > 0)
+                {
+                    if (loginState.ClaimList.Any())
+                    {
+                        loginState.ClaimList = loginState.ClaimList.Concat(result);
+                    }
+                    else
+                    {
+                        loginState.ClaimList = result;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    #endregion
+
+    NavMenu? navMenuRef;
+    bool ShowButton { get; set; } = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await stateService.retrieveFromLocalStorage();
+            // await JSRuntime.InvokeVoidAsync("interop.updateScrollVisibility", DotNetObjectReference.Create(this));
+
+            var dataNavLayout = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-nav-layout");
+            var inner = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
+            if (dataNavLayout == "horizontal" && inner >= 992)
+            {
+                navMenuRef?.closeMenuFn();
+            }
+        }
+    }
+    [JSInvokable]
+    public void UpdateScrollVisibility(int scrollHeight)
+    {
+        ShowButton = scrollHeight >= 100;
+        StateHasChanged();
+    }
+    async Task ScrollToTop()
+    {
+        await JSRuntime.InvokeVoidAsync("interop.scrollToTop");
+    }
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var responseUms = await apiHelper.SendGetAsync<TranslationUserCheckResponseDto>($"Translations/GetTranslationsListAndUserCheck", hasReturnData: true, isApiKeyAuth: true);
+        if (responseUms.IsSuccessStatusCode)
+        {
+            var result = (TranslationUserCheckResponseDto)responseUms.ResultData;
+            if (result.UserCount > 0)
+            {
+            }
+            else
+            {
+            }
+        }
+        var currentState = new AppState();
+        var newState = stateService.GetAppState(); 
+        if(!currentState.Equals(newState)){
+        }
+        StateHasChanged();
+        await base.OnInitializedAsync();
+    }
+    
+    // Icon ClickOpen Start
+    private async void icontextCloseFn()
+    {
+        var dataToggled = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-toggled");
+        var dataNavLayout = await JSRuntime.InvokeAsync<string>("interop.getAttributeToHtml", "data-nav-layout");
+        var inner = await JSRuntime.InvokeAsync<int>("interop.inner", "innerWidth");
+        if (dataToggled == "icon-text-close") {
+            await JSRuntime.InvokeAsync<string>("interop.removeAttributeFromHtml", "data-icon-text");
+        }
+        if(dataNavLayout == "horizontal" && inner >= 992){
+            navMenuRef?.closeMenuFn();
+        }
+    }
+    // Icon Clickopen End
+}

@@ -1,0 +1,108 @@
+@page "/form_color_pickers"
+@using BlazorColorPicker
+@inject IColorPickerService ColorPickerService
+
+<link href="_content/BlazorColorPicker/colorpicker.css" rel="stylesheet" />
+<link href="_content/BlazorColorPicker/BlazorColorPicker.bundle.scp.css" rel="stylesheet" />
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Color Pickers</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Form Elements</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Color Pickers</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header Close -->
+
+    <!-- Start::row-1 -->
+    <div class="row">
+        <div class="col-xl-3">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        Bootstrap Color Picker
+                    </div>
+                </div>
+                <div class="card-body">
+                    <input type="color" class="form-control form-control-color border-0" id="exampleColorInput"
+                        value="#136ad0" title="Choose your color">
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-9">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        Blazor Color Picker
+                    </div>
+                </div>
+                <div class="card-body d-flex justify-content-between">
+                    <a href="javascript:void(0);" @onclick="OpenModal">
+                        <div style="background-color:@color" class="buttonColor m-0"></div>
+                    </a>
+
+                    <a href="javascript:void(0);" @onclick="OpenModalCustom">
+                        <div style="background-color:@customColor" class="buttonColor m-0"></div>
+                    </a>
+
+                    <a href="javascript:void(0);" @onclick="OpenModalCustomSizes">
+                        <div style="background-color:@customColorSize" class="buttonColor m-0"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::row-1 -->
+
+</div>
+            
+@code {
+    string[] colors = new string[] { "#FFFFFF", "#000000", "#999999","#845adf" };
+    string color = "#845adf";
+    string customColor = "rgb(35, 183, 229)";
+    string customColorSize = "#845adf";
+
+
+
+	private async Task OpenModal()
+	{
+		var parameters = new ColorPickerParameters
+		{
+			ColorSelected = color,
+		};
+		color = await ColorPickerService.ShowColorPicker(parameters);
+	}
+
+	private async Task OpenModalCustom()
+	{
+		string[] colors = new string[] { "#FFFFFF", "#000000", "#999999", "#03A97E", "#04B573",
+			"#05BF69", "#06CA5F", "#06D554", "#07E148", "#08EC3E" };
+
+		var parameters = new ColorPickerParameters
+		{
+			ColorSelected = customColor,
+			MyColorPallet = colors,
+			OverwriteBackgroundColor = "#CCCCCC",
+			Title = "Custom Colors",
+		};
+		customColor = await ColorPickerService.ShowColorPicker(parameters);
+    }
+
+	private async Task OpenModalCustomSizes()
+	{
+		var parameters = new ColorPickerParameters
+		{
+			ColorSelected = customColorSize,
+			Style = "width: 304px; height: 304px",
+		};
+		customColorSize = await ColorPickerService.ShowColorPicker(parameters);
+	} 
+}
+

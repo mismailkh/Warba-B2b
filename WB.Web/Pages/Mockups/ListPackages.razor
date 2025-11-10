@@ -1,0 +1,146 @@
+﻿@page "/motor-comp-packages"
+@inject ProductListService ProductListService
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Package List</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Packages</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header Close -->
+    <!-- Start::row-1 -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header  justify-content-between">
+                    <div class="card-title">
+                        Motor Comprehensive Packages
+                    </div>
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <input class="form-control form-control-sm" type="text" placeholder="Search Here" aria-label=".form-control-sm example">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm btn-wave me-3">
+                            <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>Filters
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm btn-wave me-3" @onclick="@(() => NavigationManager.NavigateTo("/package-create", forceLoad: false))">
+                            <i class="bi bi-plus align-middle d-inline-block"></i>New Package
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table text-nowrap table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Package Name (En)</th>
+                                    <th scope="col">Package Name (Ar)</th>
+                                    <th scope="col">Created Date</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    <tr class="product-list">
+                                        <td>Gold En</td>
+                                        <td>Gold Ar</td>
+                                        <td>15/10/2025</td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                            <a href="javascript:void(0)" class="btn btn-icon btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn"><i class="ri-delete-bin-line"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="product-list">
+                                        <td>Silver En</td>
+                                        <td>Silver Ar</td>
+                                        <td>15/10/2025</td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                            <a href="javascript:void(0)" class="btn btn-icon btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn"><i class="ri-delete-bin-line"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="product-list">
+                                        <td>Diamond En</td>
+                                    <td>Diamond Ar</td>
+                                        <td>15/10/2025</td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                            <a href="javascript:void(0)" class="btn btn-icon btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn"><i class="ri-delete-bin-line"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="product-list">
+                                        <td>Platinum En</td>
+                                    <td>Platinum Ar</td>
+                                        <td>15/10/2025</td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                            <a href="javascript:void(0)" class="btn btn-icon btn-sm btn-info-light"><i class="ri-edit-line"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn"><i class="ri-delete-bin-line"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            Showing 4 Entries <i class="bi bi-arrow-right ms-2 fw-semibold"></i>
+                        </div>
+                        <div class="ms-auto">
+                            <nav aria-label="Page navigation" class="pagination-style-4">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="javascript:void(0);">
+                                            Prev
+                                        </a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link text-primary" href="javascript:void(0);">
+                                            next
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::row-1 -->
+
+</div>
+@code {
+    protected async Task DeleteProductList(ProductList ProductId)
+    {
+        ProductListService.DeleteProductList(ProductId?.ProductId);
+        await Task.Delay(1000);
+        NavigationManager.NavigateTo("/products-list", forceLoad: false);
+    }
+    private bool selectAll;
+    private void ToggleSelectAll()
+    {
+        selectAll = !selectAll;
+        foreach (var ProductList in ProductListService.GetProductLists())
+        {
+            ProductList.Selected = selectAll;
+        }
+    }
+}

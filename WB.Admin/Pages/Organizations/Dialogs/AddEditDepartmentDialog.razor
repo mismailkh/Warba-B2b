@@ -1,0 +1,151 @@
+﻿@page "/save-department/{DepartmentId}"
+@page "/save-department/{OrganizationId}/{OrganizationTypeName}/{OrganizationName}"
+
+@using WB.Shared.Dtos.Organization.RequestDtos
+@using WB.Shared.Dtos.Organization.ResponseDtos
+<div class="container-fluid">
+    <RadzenTemplateForm Data="DepartmentDetail" TItem="SaveDepartmentRequestDto" Submit="@OnSubmiSaveDepartment">
+        <div class="row mb-3">
+            <div class="col-xl-6">
+                <label class="form-label d-block">Organization Type</label>
+                <span class="fs-12 text-muted">@OrganizationTypeName</span>
+            </div>
+            <div class="col-xl-6">
+                <label class="form-label d-block">Organization Name</label>
+                <span class="fs-12 text-muted">@OrganizationName</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-xl-6">
+                <label class="form-label d-block">Name (English)</label>
+                <RadzenTextBox Name="DepartmentNameEn" @bind-Value="DepartmentDetail.NameEn" Placeholder="Department Name (En)" />
+                <RadzenRequiredValidator Component="DepartmentNameEn" Text="Required Field" />
+            </div>
+            <div class="col-xl-6">
+                <label class="form-label d-block">Name (Arabic)</label>
+                <RadzenTextBox Name="DepartmentNameAr" @bind-Value="DepartmentDetail.NameAr" Placeholder="Department Name (Ar)" />
+                <RadzenRequiredValidator Component="DepartmentNameAr" Text="Required Field" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-xl-6">
+                <label class="form-label d-block">Description</label>
+                <RadzenTextArea Rows="1" @bind-Value="DepartmentDetail.Description" Placeholder="Description" />
+            </div>
+            <div class="col-xl-6">
+                <label class="form-label d-block">Status</label>
+                <label class="form-label text-muted pr-3 mt-2 me-3">@(DepartmentDetail.IsActive ? "Active" : "In Active")</label>
+                <RadzenSwitch @bind-Value="DepartmentDetail.IsActive"/>
+            </div>
+        </div>
+        <div class="d-flex justify-content-end mt-3 gap-3 pb-2">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Submit" ButtonType="ButtonType.Submit" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@(() => dialogService.Close())" />
+        </div>
+    </RadzenTemplateForm>
+</div>
+
+@code
+{
+    #region Parameters
+    [Parameter]
+    public string? DepartmentId { get; set; }
+    [Parameter]
+    public string OrganizationId { get; set; }
+    [Parameter]
+    public string OrganizationTypeName { get; set; }
+    [Parameter]
+    public string OrganizationName { get; set; }
+    #endregion
+
+    #region Variables Declaration
+    private SaveDepartmentRequestDto DepartmentDetail { get; set; } = new();
+    #endregion
+
+    #region On Component Load
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(DepartmentId))
+            await GetDepartmentDetail();
+    }
+    #endregion
+
+    #region On Parameter Set
+    protected override async Task OnParametersSetAsync()
+    {
+        DepartmentDetail.OrganizationId = Guid.Parse(OrganizationId);
+    }
+    #endregion
+
+    #region Populate Department Detail
+    private async Task GetDepartmentDetail()
+    {
+        try
+        {
+            var response = await apiHelper.SendGetAsync<DepartmentDetailResponseDto>($"Organizations/GetDepartmentDetail?departmentId={Guid.Parse(DepartmentId)}&&culture=en-US");
+            if (response.IsSuccessStatusCode)
+            {
+                DepartmentDetail = mapper.Map<SaveDepartmentRequestDto>(response.ResultData);
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                await invalidRequestHandler.ReturnBadRequestNotification(response);
+            }
+        }
+        catch (Exception)
+        {
+            notificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Detail = "Something_went_wrong_Please_try_again",
+            });
+        }
+    }
+    #endregion
+
+    #region Button Events
+    private async Task OnSubmiSaveDepartment()
+    {
+        try
+        {
+            bool? dialogResponse = await dialogService.Confirm(
+            translationState.Translate("Sure_Submit"),
+            translationState.Translate("Confirm"),
+            new ConfirmOptions()
+            {
+                CancelButtonText = translationState.Translate("Cancel"),
+                OkButtonText = translationState.Translate("OK")
+            });
+            if (dialogResponse == true)
+            {
+                DepartmentDetail.LoggedInUser = loginState.UserDetail.UserId;
+                
+                var response = await apiHelper.SendAsync<SaveDepartmentRequestDto, object>(HttpMethod.Post, "Organizations/SaveDepartment", DepartmentDetail, hasReturnData: false);
+                if (response.IsSuccessStatusCode)
+                {
+                    notificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Detail = DepartmentId == null ? "Department Added Successfully" : "Department Updated Successfully",
+                        Duration = 2000
+                    });
+                    dialogService.Close(1);
+                }
+                else
+                {
+                    await invalidRequestHandler.ReturnBadRequestNotification(response);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            notificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Detail = translationState.Translate("Something_went_wrong_Please_try_again"),
+            });
+        }
+    }
+    #endregion
+}

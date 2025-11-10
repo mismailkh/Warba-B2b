@@ -1,0 +1,1104 @@
+﻿@page "/save-policy"
+@using FlatpickrBlazor.Components
+@using Soenneker.Blazor.FilePond.Enums
+@using Soenneker.Blazor.FilePond.Options
+@using Soenneker.Blazor.TomSelect.Configuration
+@using WB.Shared.Dtos;
+@using Soenneker.Blazor.TomSelect.Enums
+@using WB.Web.Extensions
+@layout MainLayout
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+<PageTitle>Purchase A Policy</PageTitle>
+<link rel="stylesheet" href="@($"{NavigationManager.BaseUri}assets/libs/quill/quill.snow.css")">
+
+<div class="container-fluid">
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Motor Comprehensive Policy Purchase</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Home</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Motor Comprehensive</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Purchase A New Policy</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <RadzenTemplateForm Data="PolicyPurchaseRequest" TItem="PolicyPurchaseRequestDto" Submit="@OpenSubmitDialog" InvalidSubmit="@HandleInvalidSubmit">
+        <div class="card custom-card">
+            <div class="card-body">
+                <div class="card custom-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">Quotation Summary</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Quotation Request #:</label>
+                                <span class="fs-12 text-muted">87452</span>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Product Name</label>
+                                <span class="fs-12 text-muted">MTC01 - Motor Comprehensive</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Process Type</label>
+                                <span class="fs-12 text-muted">000 -  New Policy</span>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Quotation Status</label>
+                                <span class="fs-12 text-muted">Draft</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Request Date</label>
+                                <span class="fs-12 text-muted">01/01/2026</span>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label d-block">Payment Method</label>
+                                @if (isRendered)
+                                {
+                                    <RadzenDropDown Data="PaymentMethods" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="SelectedValue" Disabled="false" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion customized-accordion accordions-items-seperate" id="accordionPrimaryExample">
+                    <div class="@PremiumAccordionClass">
+                        <h2 class="accordion-header" id="headingPrimaryOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryOne" aria-expanded="true"
+                                    aria-controls="collapsePrimaryOne">
+                                Premium Calculation
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryOne" class="accordion-collapse collapse show"
+                             aria-labelledby="headingPrimaryOne"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Vehicle Summary</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Vehicle Brand</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Name="VehicleBrand" Data="VehicleBrands" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.VehicleBrandId" />
+                                                    <RadzenRequiredValidator Component="VehicleBrand" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Vehicle Model</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Name="VehicleModel" Data="VehicleModels" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.VehicleModelId" />
+                                                    <RadzenRequiredValidator Component="VehicleModel" Text="Required Field" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Model Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDatePicker Name="VehicleYear" DateFormat="yyyy" @bind-value="PolicyPurchaseRequest.PremiumCalculation.VehicleYear" TValue="DateTime" Placeholder="Choose date" />
+                                                    <RadzenRequiredValidator Component="VehicleYear" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Package Description</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Name="Package" Data="Packages" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.PackageId" />
+                                                    <RadzenRequiredValidator Component="Package" Text="Required Field" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card custom-card mt-3">
+                                    <div class="card-header">
+                                        <div class="card-title">Duration Summary</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Policy Duration</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Name="PolicyDuration" Data="Years" TextProperty="Name" ValueProperty="Id" Multiple="false" Change="@CalculatePolicyEndDate" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.PolicyDuration" />
+                                                    <RadzenRequiredValidator Component="PolicyDuration" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Policy Start Date</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDatePicker Name="PolicyStartDate" DateFormat="dd/MM/yyyy" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.PolicyStartDate" Change="@CalculatePolicyEndDate" TValue="DateTime" Placeholder="Choose date" />
+                                                    <RadzenRequiredValidator Component="PolicyStartDate" Text="Required Field" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Policy End Date</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDatePicker DateFormat="dd/MM/yyyy" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.PolicyEndDate" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Reason For Future Start Date</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenTextArea Name="FutureDateReason" id="future-date-reason" rows="1" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.FuturePolicyDateReason" Change="@UpdateAccordionColors" />
+                                                    <RadzenRequiredValidator Component="FutureDateReason" Text="Required Field" />
+
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card custom-card mt-3">
+                                    <div class="card-header">
+                                        <div class="card-title">Premium Summary</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-labe d-blockl">Default Risk %</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" Value="3" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Sum Insured 1st Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric Name="SIFirstYear" ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.SumInsuredFirstYear" Placeholder="" />
+                                                    <RadzenRequiredValidator Component="SIFirstYear" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Basic Premium 1st Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.BasicPremiumFirstYear" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Sum Insured 2nd Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric Name="SISecondYear" ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.SumInsuredSecondYear" Placeholder="" />
+                                                    <RadzenRequiredValidator Component="SISecondYear" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Basic Premium 2nd Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.BasicPremiumSecondYear" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Sum Insured 3rd Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric Name="SIThirdYear" ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-value="PolicyPurchaseRequest.PremiumCalculation.SumInsuredThirdYear" Placeholder="" />
+                                                    <RadzenRequiredValidator Component="SIThirdYear" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Basic Premium 3rd Year</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.BasicPremiumThirdYear" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Total Sum Insured</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.TotalSumInsured" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Total Basic Premium</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" TValue="double" Format="#.000" @bind-value="PolicyPurchaseRequest.PremiumCalculation.TotalBasicPremium" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card custom-card mt-3">
+                                    <div class="card-header">
+                                        <div class="card-title">Customer Information</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Is beneficiary same as insured?</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Name="BeneficiaryConfirmation" Data="Acknowledgements" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.IsBeneficiarySameAsInsured" Disabled="IsDisabled" />
+                                                    <RadzenRequiredValidator Component="BeneficiaryConfirmation" Text="Required Field" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Date of Birth</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDatePicker Name="DOB" DateFormat="dd/MM/yyyy" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.DateOfBirth" TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    <RadzenRequiredValidator Component="DOB" Text="Required Field" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Age</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.PremiumCalculation.Age" Placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* <div class="d-flex justify-content-end gap-3 mt-2 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="@VehicleAccordionClass mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryTwo" aria-expanded="true"
+                                    aria-controls="collapsePrimaryTwo">
+                                Vehicle Information
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryTwo" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryTwo"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Plate Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="PlateNumber" @bind-Value="PolicyPurchaseRequest.VehicleInformation.PlateNumber" Placeholder="Enter Plate Number" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="PlateNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Chasis Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="ChasisNumber" @bind-Value="PolicyPurchaseRequest.VehicleInformation.ChasisNumber" Placeholder="Enter Chasis Number" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="ChasisNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Vehicle Type</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="VehicleType" Data="VehicleTypes" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.VehicleInformation.VehicleTypeId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="VehicleType" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Fuel Type</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="FuelType" Data="FuelTypes" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.VehicleInformation.FuelTypeId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="FuelType" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Primary Color</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="PrimaryColor" @bind-Value="PolicyPurchaseRequest.VehicleInformation.PrimaryColor" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="PrimaryColor" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Secondary Color</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="SecondaryColor" @bind-Value="PolicyPurchaseRequest.VehicleInformation.SecondaryColor" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Vehicle Shape</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="VehicleShape" @bind-Value="PolicyPurchaseRequest.VehicleInformation.VehicleShape" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="VehicleShape" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Seating Capacity</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="SeatingCapacity" ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.VehicleInformation.SeatingCapacity" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="SeatingCapacity" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Purpose of Registration</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="PurposeOfRegistration" @bind-Value="PolicyPurchaseRequest.VehicleInformation.PurposeOfRegistration" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="PurposeOfRegistration" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Mileage</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="Mileage" @bind-Value="PolicyPurchaseRequest.VehicleInformation.Mileage" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">CC/Hp</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="EnginePower" @bind-Value="PolicyPurchaseRequest.VehicleInformation.EnginePower" />
+                                        }
+                                    </div>
+                                </div>
+
+                               @*  <div class="d-flex justify-content-end gap-3 mt-2 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item custom-accordion-primary mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryThree" aria-expanded="true"
+                                    aria-controls="collapsePrimaryThree">
+                                Upload Documents
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryThree" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryThree"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row input-group mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Vehicle Registration Copy</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Civil ID Copy</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row input-group mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Front Bumper Picture</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Rear Bumper Picture</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row input-group mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Vehicle Picture (Right Side)</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Vehicle Picture (Left Side)</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row input-group mb-3">
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Windshield Picture</label>
+                                        @if (isRendered)
+                                        {
+                                            <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row input-group mb-3">
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Survey Comment</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextArea rows="4" Value="SampleText" />
+                                        }
+                                    </div>
+                                </div>
+                               @*  <div class="d-flex justify-content-end mt-2 gap-3 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card custom-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">Add-Ons</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion accordion-border-primary accordions-items-seperate" id="accordionPrimaryExample">
+                            <div class="accordion-item addon-accordion-item mt-4">
+                                <h2 class="accordion-header" id="headingPrimaryFour">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePrimaryFour" aria-expanded="true"
+                                            aria-controls="collapsePrimaryFour">
+                                        <div class="d-flex align-items-center">
+                                            <RadzenCheckBox class="me-3" @bind-value="PolicyPurchaseRequest.AddOnInformation.IsRoadSideAssistanceIncluded" />
+                                            Roadside Assist
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapsePrimaryFour" class="accordion-collapse collapse"
+                                     aria-labelledby="headingPrimaryFour"
+                                     data-bs-parent="#accordionPrimaryExample">
+                                    <div class="accordion-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Duration</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Years" TextProperty="Name" ValueProperty="Id" Multiple="false"
+                                                                    @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnRoadsideAssistInformation.RoadSideAssistanceDuration" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Amount (KWD)</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown"
+                                                                   id="input-label" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnRoadsideAssistInformation.RoadAssistanceFee" placeholder=""
+                                                                   Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            @if (isRendered)
+                                            {
+                                                <div class="col-xl-6">
+                                                    <label class="form-label d-block">Which policy year(s) the add-on applies to:</label>
+
+                                                    <div class="d-flex align-items-center mb-2 gap-2">
+                                                        <RadzenCheckBox class="ms-2" TValue="bool" @bind-Value="CheckboxFalse" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2026, 01, 01))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2026, 12, 31))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center mb-2 gap-2">
+                                                        <RadzenCheckBox class="ms-2" TValue="bool" @bind-Value="CheckboxTrue" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2027, 01, 01))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2027, 12, 31))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center mb-2 gap-2">
+                                                        <RadzenCheckBox class="ms-2" TValue="bool" @bind-Value="CheckboxTrue" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2028, 01, 01))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2028, 12, 31))"
+                                                                          TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-6">
+                                                    <label class="form-label d-block">Select Provider</label>
+                                                    <RadzenDropDown Data="Providers" TextProperty="Name" ValueProperty="Id"
+                                                                    Multiple="false" Placeholder="Select"
+                                                                    @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnRoadsideAssistInformation.RoadAssistanceProviderId" />
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item addon-accordion-item mt-4">
+                                <h2 class="accordion-header" id="headingPrimaryFive">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePrimaryFive" aria-expanded="true"
+                                            aria-controls="collapsePrimaryFive">
+                                        <div class="d-flex align-items-center">
+                                            <RadzenCheckBox class="me-3" @bind-Value="PolicyPurchaseRequest.AddOnInformation.IsPaintProtectionIncluded" />
+                                            Paint Protection
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapsePrimaryFive" class="accordion-collapse collapse"
+                                     aria-labelledby="headingPrimaryFive"
+                                     data-bs-parent="#accordionPrimaryExample">
+                                    <div class="accordion-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Paint Protection Value (KWD)</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" @bind-value="PolicyPurchaseRequest.AddOnInformation.AddOnPaintProtectionInformation.PaintProtectionValue" TValue="int" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Amount (KWD)</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" id="input-label" Format="#.000" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnPaintProtectionInformation.PaintProtectionFee" placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Is paint protection inside the agency?</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Acknowledgements" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnPaintProtectionInformation.IsPaintProtectionInsideAgency" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Paint Protection Invoice</label>
+                                                @if (isRendered)
+                                                {
+                                                    <FilePond @ref="FilePond" Options="_Attachmentsoptions"></FilePond>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item addon-accordion-item mt-4">
+                                <h2 class="accordion-header" id="headingPrimarySix">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePrimarySix" aria-expanded="true"
+                                            aria-controls="collapsePrimarySix">
+                                        <div class="d-flex align-items-center">
+                                            <RadzenCheckBox class="me-3" Value="PolicyPurchaseRequest.AddOnInformation.IsPersonalAccidentPlanIncluded" />
+                                            Personal Accident Plan
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapsePrimarySix" class="accordion-collapse collapse"
+                                     aria-labelledby="headingPrimarySix"
+                                     data-bs-parent="#accordionPrimaryExample">
+                                    <div class="accordion-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Select Plan</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="AccidentPlans" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnPersonalAccidentPlanInformation.PersonalAccidentPlanId" />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Amount (KWD)</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" id="input-label" Format="#.000" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnPersonalAccidentPlanInformation.PersonalAccidentFee" placeholder="" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="accordion-item addon-accordion-item mt-4">
+                                <h2 class="accordion-header" id="headingPrimarySeven">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePrimarySeven" aria-expanded="true"
+                                            aria-controls="collapsePrimarySeven">
+                                        <div class="d-flex align-items-center">
+                                            <RadzenCheckBox class="me-3" @bind-Value="PolicyPurchaseRequest.AddOnInformation.IsReplacementVehicleIncluded" />
+                                            Replacement Vehicle
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapsePrimarySeven" class="accordion-collapse collapse"
+                                     aria-labelledby="headingPrimarySeven"
+                                     data-bs-parent="#accordionPrimaryExample">
+                                    <div class="accordion-body">
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Select Size</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Sizes" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnReplacementVehicleInformation.ReplacementVehicleSize"  />
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Amount (KWD)</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenNumeric ShowUpDown="ShowNumericUpDown" id="input-label" Format="#.000" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnReplacementVehicleInformation.ReplacementVehicleProviderId" placeholder="" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Select Days</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Days" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnReplacementVehicleInformation.ReplacementVehicleDays"/>
+                                                }
+                                            </div>
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Provider</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Providers" TextProperty="Name" ValueProperty="Id" Multiple="false" Placeholder="Select" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnReplacementVehicleInformation.ReplacementVehicleFee" Disabled="IsDisabled" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Duration</label>
+                                                @if (isRendered)
+                                                {
+                                                    <RadzenDropDown Data="Years" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.AddOnInformation.AddOnReplacementVehicleInformation.ReplacementVehicleDuration" />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xl-6">
+                                                <label class="form-label d-block">Which policy year(s) the add-on applies to:</label>
+                                                <div class="d-flex align-items-center mb-2 gap-2">
+                                                    <RadzenCheckBox class="ms-2" TValue="bool" @bind-Value="CheckboxFalse" Disabled="IsDisabled" />
+                                                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2026, 01, 01))" TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2026, 12, 31))" TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2 gap-2">
+                                                    <RadzenCheckBox class="ms-2" TValue="bool" @bind-Value="CheckboxTrue" Disabled="IsDisabled" />
+                                                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2027, 01, 01))" TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Value="@(new DateTime(2027, 12, 31))" TValue="DateTime" Placeholder="Choose date" Disabled="IsDisabled" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row gy-4 mt-2">
+                            <div class="col-xl-12">
+                                <div class="col">
+                                    <div class="form-check d-flex align-items-center gap-3 p-2 border rounded-pill">
+                                        <div class="flex-fill px-2">
+                                            <label class="form-check-label d-block fw-medium fs-15" for="flexCheckChecked">Waiver of Subrogation</label>
+                                        </div>
+                                        <div>
+                                            <input class="form-check-input form-checked-primary" style="padding: 9px;" type="checkbox" @bind-value="PolicyPurchaseRequest.AddOnInformation.IsSubrogationWaiverIncluded" id="flexCheckChecked">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       @*  <div class="d-flex justify-content-end gap-3 mt-2 pb-2">
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                        </div> *@
+                    </div>
+                </div>
+                <div class="row gy-4 mt-2">
+                    <div class="col-xl-12">
+                        <div class="col">
+                            <div class="form-check d-flex align-items-center gap-3 p-2 border rounded-pill">
+                                <div class="flex-fill px-2">
+                                    <label class="form-check-label d-block fw-medium fs-15" for="flexCheckChecked2">Request Discount</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input form-checked-primary" style="padding: 9px;" type="checkbox" @bind-value="PolicyPurchaseRequest.IsDiscountRequested" id="flexCheckChecked2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card custom-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">Premium Details</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table text-nowrap table-bordered">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th scope="col">Fee Type</th>
+                                        <th scope="col" class="text-end">Percentage</th>
+                                        <th scope="col" class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detail in PremiumDetailsData)
+                                    {
+                                        <tr class="@(detail.IsSummaryRow ? "fw-bold table-light" : "")
+                                                                   @(detail.IsDiscountRow ? "text-danger" : "")">
+
+                                            <td scope="row">@detail.FeeType</td>
+                                            <td class="text-end">
+                                                @if (!string.IsNullOrEmpty(detail.Percentage))
+                                                {
+                                                    @($"{detail.Percentage}")
+                                                }
+                                            </td>
+                                            <td class="text-end">@detail.Amount</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion customized-accordion accordions-items-seperate mt-3" id="accordionPrimaryExample">
+                    <div class="accordion-item custom-accordion-primary mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryEight">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryEight" aria-expanded="true"
+                                    aria-controls="collapsePrimaryEight">
+                                Terms & Conditions
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryEight" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryEight"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <div class="col-xl-6"></div>
+
+                                    <div class="col-xl-6">
+                                        <div class="d-flex justify-content-end align-items-center">
+                                            @if (isRendered)
+                                            {
+                                                <label class="form-label mb-0 me-3 mt-1">Request Modification</label>
+                                                <RadzenCheckBox class="form-check-input me-3" TValue="bool" @bind-Value="PolicyPurchaseRequest.IsTCModificationRequested" />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextArea class="form-control" id="future-date-reason" rows="4" @bind-Value="SampleText" Disabled="IsDisabled" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextArea class="form-control" id="future-date-reason" rows="4" @bind-Value="SampleText" Disabled="IsDisabled" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion customized-accordion accordions-items-seperate mt-3" id="accordionPrimaryExample">
+                    <div class="@InsuredPersonAccordionClass mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryNine">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryNine" aria-expanded="true"
+                                    aria-controls="collapsePrimaryNine">
+                                Insured Personal Information
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryNine" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryNine"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Insured Name</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="InsuredName" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.InsuredPersonName" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="InsuredName" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Beneficiary Name</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="BeneficiaryName" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.BeneficiaryName" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="BeneficiaryName" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Civil ID Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="CivilId" TValue="long" ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.CivilId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="CivilId" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Job Title</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="JobTitle" Data="JobTitles" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.JobTitleId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="JobTitle" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Nationality</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="Nationality" Data="JobTitles" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.NationalityId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="Nationality" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Gender</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="Gender" Data="JobTitles" TextProperty="Name" ValueProperty="Id" Multiple="false" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.GenderId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="Gender" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Mobile Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="MobileNumber" ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.MobileNumber" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="MobileNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">WhatsApp Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="WhatsAppNumber" ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.WhatsAppNumber" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="WhatsAppNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Telephone Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric ShowUpDown="ShowNumericUpDown" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.TelephoneNumber" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Email Address</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="Email" @bind-Value="PolicyPurchaseRequest.InsuredPersonInformation.EmailAddress" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="Email" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+                              @*   <div class="d-flex justify-content-end gap-3 mt-2 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion customized-accordion accordions-items-seperate mt-3" id="accordionPrimaryExample">
+                    <div class="@InsuredAddressAccordionClass mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryNine">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryNine" aria-expanded="true"
+                                    aria-controls="collapsePrimaryNine">
+                                Insured Address Information
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryNine" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryNine"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Governorate</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenDropDown Name="Governorate" Data="Governorates" TextProperty="Name" ValueProperty="Id"
+                                                            Multiple="false" @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.GovernerateId" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="Governorate" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Block Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="BlockNumber" ShowUpDown="ShowNumericUpDown"
+                                                           @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.BlockNumber" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="BlockNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Governorate Description</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="GovernorateDescription" @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.GovernerateDescription" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="GovernorateDescription" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Area Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="AreaNumber" ShowUpDown="ShowNumericUpDown"
+                                                           @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.AreaNumber" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="AreaNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Street Name/No</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextBox Name="StreetName" @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.StreetName" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="StreetName" Text="Required Field" />
+                                        }
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label d-block">Home Number</label>
+                                        @if (isRendered)
+                                        {
+                                            <RadzenNumeric Name="HomeNumber" ShowUpDown="ShowNumericUpDown"
+                                                           @bind-Value="PolicyPurchaseRequest.InsuredAddressInformation.HomeNumber" Disabled="IsDisabled" />
+                                            <RadzenRequiredValidator Component="HomeNumber" Text="Required Field" />
+                                        }
+                                    </div>
+                                </div>
+
+                              @*   <div class="d-flex justify-content-end gap-3 mt-2 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save and Proceed" ButtonType="ButtonType.Button" />
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion customized-accordion accordions-items-seperate mt-3" id="accordionPrimaryExample">
+                    <div class="accordion-item custom-accordion-primary mt-4">
+                        <h2 class="accordion-header" id="headingPrimaryTen">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePrimaryTen" aria-expanded="true"
+                                    aria-controls="collapsePrimaryTen">
+                                Comments
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryTen" class="accordion-collapse collapse"
+                             aria-labelledby="headingPrimaryTen"
+                             data-bs-parent="#accordionPrimaryExample">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <div class="col-xl-12">
+                                        @if (isRendered)
+                                        {
+                                            <RadzenTextArea Rows="3" Style="width: 100%" @bind-Value="SampleText" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3 gap-3 pb-2">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Submit" ButtonType="ButtonType.Submit"/>
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save As Draft" ButtonType="ButtonType.Button" Click="@OpenSaveAsDraftDialog" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" />
+                </div>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</div>
+<style>
+    .accordion-item {
+        transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+</style>

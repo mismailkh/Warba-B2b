@@ -1,0 +1,62 @@
+﻿@implements IDisposable
+@if(IsVisible)
+{
+    <div class="rz-dialog-wrapper">
+        <div class="rz-dialog bg-transparent" role="dialog" aria-labelledby="rz-dialog-0-label" style="width: 600px;min-height:auto;min-width:auto;width:auto;box-shadow:none;" _bl_572="">
+            <div class="spinner-grow text-white" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div class="rz-dialog-mask" style="pointer-events: none;"></div>
+    </div>
+}
+
+@code
+{
+    protected bool IsVisible { get; set; }
+    protected override void OnInitialized()
+    {
+        spinnerService.OnShow += ShowSpinner;
+        spinnerService.OnNewShow += ShowNewSpinner;
+        spinnerService.OnSigningShow += ShowSigningSpinner;
+        spinnerService.OnHide += HideSpinner;
+    }
+    public void ShowSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = true;
+            StateHasChanged();
+        });
+    }
+    public void ShowNewSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = true;
+            StateHasChanged();
+        });
+    }
+
+    public void ShowSigningSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = true;
+            StateHasChanged();
+        });
+    }
+    public void HideSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = false;
+            StateHasChanged();
+        });
+    }
+    public void Dispose()
+    {
+        spinnerService.OnShow -= ShowSpinner;
+        spinnerService.OnHide -= HideSpinner;
+    }
+}

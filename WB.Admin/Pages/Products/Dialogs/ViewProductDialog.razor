@@ -1,0 +1,173 @@
+﻿@using global::WB.Shared.Configs
+@using global::WB.Shared.Dtos
+@using WB.Shared.Dtos.Product.ResponseDtos;
+@using WB.Shared.Dtos.Product.RequestDtos;
+@using WB.Shared.Enums;
+
+<RadzenTemplateForm TItem="ProductDetailResponseDto" Data="@Product">
+    <div class="row">
+        <div class="col-xl-6 mb-3">
+            <RadzenLabel class="fw-bold" Text="@(translationState.Translate("NameEn"))" />
+            <div class="form-control-plaintext">
+                @Product.NameEn
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-3">
+            <RadzenLabel class="fw-bold" Text="@(translationState.Translate("NameAr"))" />
+            <div class="form-control-plaintext">
+                @Product.NameAr
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-3">
+            <RadzenLabel class="fw-bold" Text="@translationState.Translate("CreatedBy")" />
+            <div class="form-control-plaintext">
+                @Product.CreatedBy
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-3">
+            <RadzenLabel class="fw-bold" Text="@translationState.Translate("CreatedDate")" />
+            <div class="form-control-plaintext">
+                @Product.CreatedDate.ToString("dd MMM yyyy hh:mm tt")
+            </div>
+        </div>
+
+        <div class="col-xl-12 mb-3">
+            <RadzenLabel class="fw-bold" Text="@translationState.Translate("Status")" />
+            <div class="form-control-plaintext">
+                @if (Product != null)
+                {
+                    @((Product.IsActive) ? translationState.Translate("Active") : translationState.Translate("Inactive"))
+                }
+            </div>
+        </div>
+
+        <div class="col-xl-12 mb-3">
+            <RadzenLabel class="fw-bold" Text="@translationState.Translate("List_of_Processes")" />
+            <div class="table-responsive">
+                <RadzenDataGrid @ref="processGrid"
+                                TItem="ProductProcessListResponseDto"
+                                Data="@Product?.ProductProcesses"
+                                AllowSorting="true"
+                                ExpandMode="@expandMode"
+                                RowRender="@OnProcessRowRender"
+                                ColumnWidth="250px"
+                                class="rz-datagrid-sm">
+
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ProductProcessListResponseDto" Property="NameEn" Title="@(translationState.Translate("NameEn"))" />
+                        <RadzenDataGridColumn TItem="ProductProcessListResponseDto" Property="NameAr" Title="@(translationState.Translate("NameAr"))" />
+                        <RadzenDataGridColumn TItem="ProductProcessListResponseDto" Title="@(translationState.Translate("Assigned"))" Width="120px">
+                            <Template Context="proc">
+                                <div class="text-center">
+                                    <RadzenCheckBox Disabled="true" Value="proc.IsAssigned" />
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+
+                    <Template Context="proc">
+                        <div class="p-3 border rounded bg-light">
+                            <div class="mb-2 fw-semibold">@translationState.Translate("Subprocesses")</div>
+
+                            <RadzenDataGrid TItem="ProductProcessSubprocessListResponseDto"
+                                            Data="@(proc.ProductProcessSubprocesses ?? new List<ProductProcessSubprocessListResponseDto>())"
+                                            AllowSorting="true"
+                                            ColumnWidth="200px"
+                                            class="rz-datagrid-sm">
+
+                                <Columns>
+                                    <RadzenDataGridColumn Property="NameEn" Title="@(translationState.Translate("NameEn"))" />
+                                    <RadzenDataGridColumn Property="NameAr" Title="@(translationState.Translate("NameAr"))" />
+                                    <RadzenDataGridColumn Title="@(translationState.Translate("Assigned"))" Width="120px">
+                                        <Template Context="sub">
+                                            <div class="text-center">
+                                                <RadzenCheckBox Disabled="true" Value="sub.IsAssigned" />
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+
+                            </RadzenDataGrid>
+                        </div>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>  
+    </div>
+
+    <div class="row popup-buttons-alignment">
+        <div class="col-12">
+            <RadzenButton Text="@translationState.Translate("Close")" Click="@Cancel" ButtonStyle="ButtonStyle.Light" class="btn btn-light" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code {
+    #region Parameters, Variables Declaration
+
+    [Parameter]
+    public int? ProductId { get; set; }
+    public ProductDetailResponseDto Product { get; set; } = new();
+    public RadzenDataGrid<ProductProcessListResponseDto> processGrid;
+    public DataGridExpandMode expandMode = DataGridExpandMode.Single;
+    #endregion
+
+    #region Component Load
+
+    protected override async Task OnInitializedAsync()
+    {
+        spinnerService.Show();
+        await LoadData();
+        spinnerService.Hide();
+    }
+
+    #endregion
+
+    #region Load Data
+
+    private async Task LoadData()
+    {
+        try
+        {
+            if (ProductId != null)
+            {
+                var response = await apiHelper.SendGetAsync<ProductDetailResponseDto>($"Product/GetProductDetail?Id={(int)ProductId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    Product = response.ResultData;
+                }
+                else
+                {
+                    await invalidRequestHandler.ReturnBadRequestNotification(response);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+    #endregion
+
+    #region Row Expand
+
+    private void OnProcessRowRender(RowRenderEventArgs<ProductProcessListResponseDto> args)
+    {
+        args.Expandable = args.Data?.ProductProcessSubprocesses != null && args.Data.ProductProcessSubprocesses.Any();
+    }
+
+    #endregion
+
+
+    #region Dialog Events
+
+    private void Cancel()
+    {
+        dialogService.Close(null);
+    }
+
+    #endregion
+}

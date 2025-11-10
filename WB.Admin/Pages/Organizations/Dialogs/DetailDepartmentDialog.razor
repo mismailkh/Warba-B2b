@@ -1,0 +1,90 @@
+﻿@page "/view-department/{DepartmentId}"
+
+@using WB.Shared.Dtos.Organization.RequestDtos
+@using WB.Shared.Dtos.Organization.ResponseDtos
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-xl-6">
+            <label class="form-label d-block">Organization Type</label>
+            <span class="fs-12 text-muted">@OrganizationTypeName</span>
+        </div>
+        <div class="col-xl-6">
+            <label class="form-label d-block">Organization Name</label>
+            <span class="fs-12 text-muted">@OrganizationName</span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-xl-6">
+            <label class="form-label d-block">Name (English)</label>
+            <span class="fs-12 text-muted">@DepartmentDetail.NameEn</span>
+        </div>
+        <div class="col-xl-6">
+            <label class="form-label d-block">Name (Arabic)</label>
+            <span class="fs-12 text-muted">@DepartmentDetail.NameAr</span>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-xl-6">
+            <label class="form-label d-block">Description</label>
+            <span class="fs-12 text-muted">@DepartmentDetail.Description</span>
+        </div>
+        <div class="col-xl-6">
+            <label class="form-label d-block">Status</label>
+            <span class="fs-12 text-muted">@(DepartmentDetail.IsActive ? "Active" : "In Active")</span>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end mt-3 gap-3 pb-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" ButtonType="ButtonType.Button" Click="@(() => dialogService.Close(1))" />
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@(() => dialogService.Close())" />
+    </div>
+</div>
+
+@code
+{
+    #region Parameters
+    [Parameter]
+    public string? DepartmentId { get; set; }
+    [Parameter]
+    public string OrganizationTypeName { get; set; }
+    [Parameter]
+    public string OrganizationName { get; set; }
+    #endregion
+
+    #region Variables Declaration
+    private SaveDepartmentRequestDto DepartmentDetail { get; set; } = new();
+    #endregion
+
+    #region On Component Load
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDepartmentDetail();
+    }
+    #endregion
+
+    #region Populate Department Detail
+    private async Task GetDepartmentDetail()
+    {
+        try
+        {
+            var response = await apiHelper.SendGetAsync<DepartmentDetailResponseDto>($"Organizations/GetDepartmentDetail?departmentId={Guid.Parse(DepartmentId)}&&culture=en-US");
+            if (response.IsSuccessStatusCode)
+            {
+                DepartmentDetail = mapper.Map<SaveDepartmentRequestDto>(response.ResultData);
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                await invalidRequestHandler.ReturnBadRequestNotification(response);
+            }
+        }
+        catch (Exception)
+        {
+            notificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Detail = "Something_went_wrong_Please_try_again",
+            });
+        }
+    }
+    #endregion
+}

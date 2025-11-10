@@ -1,0 +1,64 @@
+﻿@using System.Net.Http
+@using AutoMapper
+@using BlazorDownloadFile
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using WB.Admin
+@using WB.Admin.Extensions
+@using WB.Admin.Helpers
+@using WB.Admin.Services
+@using WB.Admin.Extensions
+@using WB.Admin.Helpers
+@using WB.Admin.Shared
+@using ApexCharts
+@using LeafletForBlazor
+@using BlazorCleave
+@using BlazorCleave.Data
+@using Blazored.TextEditor
+@using Soenneker.Blazor.Utils.InteropEventListener.Abstract
+@using Soenneker.Blazor.FilePond
+@using Soenneker.Blazor.TomSelect
+@using FlatpickrBlazor
+@using PElshen.NoUiSlider.Blazor
+@using PElshen.NoUiSlider.Blazor.Utilities
+@using WMBlazorOverlayScrollbars.WMBOS
+@using WMBlazorSlickCarousel.WMBSC
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Excubo.Blazor.TreeViews
+@using VDT.Core.Blazor.Wizard
+@using System.ComponentModel.DataAnnotations
+@using BlazorColorPicker
+@using Radzen
+@using Radzen.Blazor
+@using WB.Admin.Extensions
+@using System.Net.Http.Json
+@using AutoMapper
+@using WB.Admin.Helpers
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Radzen.Blazor.Rendering
+
+@inject ApiClientService apiHelper
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject TranslationState translationState
+@inject SystemSettingState systemSettingState
+@inject SpinnerService spinnerService
+@inject DialogService dialogService
+@inject LoginState loginState
+@inject IConfiguration config
+@inject IJSRuntime jsInterop
+@inject IMapper mapper
+@inject ProtectedLocalStorage localStorage
+@inject CustomAuthenticationStateProvider authStateProvider
+@inject NotificationService notificationService
+@inject GridSearchExtension gridSearchExtension
+@inject InvalidRequestHandlerService invalidRequestHandler
+@inject IBlazorDownloadFileService blazorDownloadService

@@ -1,0 +1,128 @@
+@using Microsoft.JSInterop;
+@inject StateService stateService
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime;
+@using Soenneker.Blazor.TomSelect
+@using Soenneker.Blazor.TomSelect.Configuration
+@using Soenneker.Blazor.TomSelect.Enums
+
+
+<div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body p-4">
+                <label class="form-label fs-16">Select Language</label>
+                @if (isRendered)
+                {
+                    <TomSelect TItem="SelectItem" Items="_selectedItems" TType="string" Multiple="false" @bind-Value="_selectedValue" Data="_options" TextField="@(item => item.Name)" ValueField="@(item => item.Id)" Placeholder="Select" Configuration="_configuration" />
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="@(() => directionFn())">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="input-group">
+                    <a href="javascript:void(0);" class="input-group-text" id="Search-Grid"><i class="fe fe-search header-link-icon fs-18"></i></a>
+                    <input type="search" class="form-control border-0 px-2" placeholder="Search" aria-label="Username">
+                </div>
+                <div class="mt-4">
+                    <p class="font-weight-semibold text-muted mb-2">Are You Looking For...</p>
+                    <span class="search-tags alert"><i class="fe fe-server me-2"></i>Policies<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+                    <span class="search-tags alert"><i class="fe fe-file-text me-2"></i>Quotations<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+                    <span class="search-tags alert"><i class="fe fe-align-left me-2"></i>Organizations<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+                </div>
+                <div class="my-4">
+                    <p class="font-weight-semibold text-muted mb-2">Recent Search :</p>
+                    <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
+                        <a href="javascript:void(0);"><span>Notifications</span></a>
+                        <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+                    </div>
+                    <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
+                        <a href="javascript:void(0);"><span>Reviews</span></a>
+                        <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group ms-auto">
+                    <button type="button" class="btn btn-sm btn-primary-light">Search</button>
+                    <button type="button" class="btn btn-sm btn-primary">Clear Recents</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setTimeout (()=>{
+    if(!document.querySelector("#Country-img").classList.contains('tomselected')){
+    new TomSelect('#Country-img', {
+    plugins: ['dropdown_input'],
+    render: {
+    option: function(data, escape) {
+    return `<div><img class="avatar avatar-xs avatar-rounded" src="${data.src}"> <span class="mx-1">${data.text}</span></div>`;
+    },
+    item: function(item, escape) {
+    return `<div><img class="avatar avatar-xs avatar-rounded" src="${item.src}"> <span class="mx-1">${item.text}</span></div>`;
+    }
+    }
+    });
+    }
+    },1000)
+</script>
+
+@code {
+    private TomSelect<SelectItem, string> _selectedValue = default!;
+    private List<SelectItem>? _options;    
+    private List<SelectItem> _selectedItems = new List<SelectItem>(); 
+    public class SelectItem
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public bool Selected { get; set; }
+    }      
+    private readonly TomSelectConfiguration _configuration = new()
+    {
+        Plugins = new List<TomSelectPluginType> { TomSelectPluginType.DropdownInput }
+    };  
+    private bool isRendered = false;  
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _options = new List<SelectItem>
+        {
+          new SelectItem { Id = "1", Name = "English (EN)" },
+          new SelectItem { Id = "2", Name = "عربي (AR)" },
+        };
+            _selectedItems = currentState.Direction == "ltr" ? _options.Where(x => x.Id == "1").ToList() : _options.Where(x => x.Id == "2").ToList();
+
+            isRendered = true;
+            await Task.Delay(0);
+            StateHasChanged(); 
+        }
+    }
+
+    private AppState currentState => stateService.GetAppState();
+    private async Task directionFn()
+    {
+        var val = _selectedItems.First().Id == "1" ? "ltr" : "rtl";
+        if(currentState.Direction != val)
+        {
+            await stateService.directionFn(val);
+            StateHasChanged(); // Force re-render
+            navigationManager.Refresh(forceReload: true);
+        }
+    }
+}
+
+
+

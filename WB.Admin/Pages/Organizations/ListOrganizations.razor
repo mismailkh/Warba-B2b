@@ -1,0 +1,78 @@
+﻿@page "/organizations/{OrganizationTypeId:int?}"
+@layout MainLayout
+@using WB.Shared.Dtos.Organization.ResponseDtos;
+
+<PageTitle>@PageTitle</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h1 class="page-title fw-semibold fs-18 mb-0">Organizations</h1>
+        <div class="ms-md-1 ms-0">
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Home</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Organizations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@PageTitle</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xxl-12 col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        @PageTitle
+                    </div>
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <input class="form-control form-control-sm" type="text" placeholder="Search Here" aria-label=".form-control-sm example">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm btn-wave me-3" @onclick="@(()=>navigationManager.NavigateTo($"/save-organization/{OrganizationTypeId}"))">
+                            <i class="ri-add-fill me-2 align-middle d-inline-block"></i>Add Organization
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <RadzenDataGrid TItem="OrganizationsListResponseDto"
+                                    @ref="OrganizationsGrid"
+                                    Data="OrganizationsList"
+                                    Count="@(OrganizationsList?.Count ?? 0)"
+                                    AllowPaging="true"
+                                    PageSize="@systemSettingState.PageSize"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.PageSizeOptions"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat ?? "")"
+                                    ShowPagingSummary="true">
+
+                        <Columns>
+                            <RadzenDataGridColumn TItem="OrganizationsListResponseDto" Property="NameEn" Title="Organization Name (English)" />
+                            <RadzenDataGridColumn TItem="OrganizationsListResponseDto" Property="NameAr" Title="Organization Name (Arabic)" />
+                            <RadzenDataGridColumn TItem="OrganizationsListResponseDto" Property="CreatedDate" Title="Created" />
+                            <RadzenDataGridColumn TItem="OrganizationsListResponseDto" Title="Action" Sortable="false" CssClass="text-center" Width="180px">
+                                <Template Context="item">
+                                    <a aria-label="anchor"
+                                       @onclick="@(() => navigationManager.NavigateTo($"/organization-detail/{item.Id.ToString()}"))"
+                                       class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-success-light">
+                                        <i class="ri-eye-line"></i>
+                                    </a>
+                                    <a aria-label="anchor"
+                                       @onclick="@(() => navigationManager.NavigateTo($"/save-organization/{item.Id.ToString()}"))"
+                                       class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light">
+                                        <i class="ri-edit-line"></i>
+                                    </a>
+                                    <a aria-label="anchor" title="View Departments"
+                                       @onclick="@(() => navigationManager.NavigateTo($"/departments/{item.Id.ToString()}/{item.NameEn}/{item.TypeName}"))"
+                                       class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light">
+                                        <i class="ri-node-tree"></i>
+                                    </a>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

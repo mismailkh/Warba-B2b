@@ -1,0 +1,37 @@
+﻿@using WB.Admin.Pages.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@using WB.Shared.Dtos.General.ResponseDtos
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>@translationState.Translate("Not_Found")</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">@translationState.Translate("Nothing_At_This_Address")</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // var cookieFound = await jsInterop.InvokeAsync<bool>("getCookieResult");
+        // if (!cookieFound)
+        // {
+        //     var uri = new Uri(navigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        //     var query = $"?culture={Uri.EscapeDataString("ar-KW")}&redirectUri={Uri.EscapeDataString(uri)}";
+
+        //     navigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+        // }
+    }
+}

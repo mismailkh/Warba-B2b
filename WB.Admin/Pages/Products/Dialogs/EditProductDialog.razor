@@ -1,0 +1,126 @@
+﻿@using global::WB.Shared.Configs
+@using global::WB.Shared.Dtos
+@using WB.Shared.Dtos.Product.ResponseDtos;
+@using WB.Shared.Dtos.Product.RequestDtos;
+<RadzenTemplateForm TItem="UpdateProductRequestDto" Data="@Product" Submit="Save">
+    <div class="row">
+        <div class="col-xl-12 mb-2">
+            <RadzenLabel Text="@(translationState.Translate("NameEn") + " *")" />
+            <RadzenTextBox class="form-control" Trim Name="NameEn" Placeholder="@translationState.Translate("NameEn")" @bind-Value="Product.NameEn" />
+            <RadzenRequiredValidator Component="NameEn" Text="@translationState.Translate("Required_Field")" />
+            <RadzenLengthValidator Max="100" Component="NameEn" Text="@translationState.Translate("Only_100_Characters_Allowed")" />
+            <RadzenRegexValidator Component="NameEn" Text="@translationState.Translate("Only_English_Arabic_Characters_Allowed")" Pattern="@RegexPatterns.EnglishArabicPattern" />
+            <RadzenRegexValidator Pattern="@RegexPatterns.NoLeadingSpacesPattern" Component="NameEn" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" />
+        </div>
+
+        <div class="col-xl-12 mb-2">
+            <RadzenLabel Text="@(translationState.Translate("NameAr") + " *")" />
+            <RadzenTextBox class="form-control" Trim Name="NameAr" Placeholder="@translationState.Translate("NameAr")" @bind-Value="Product.NameAr" />
+            <RadzenRequiredValidator Component="NameAr" Text="@translationState.Translate("Required_Field")" />
+            <RadzenLengthValidator Max="100" Component="NameAr" Text="@translationState.Translate("Only_100_Characters_Allowed")" />
+            <RadzenRegexValidator Component="NameAr" Text="@translationState.Translate("Only_English_Arabic_Characters_Allowed")" Pattern="@RegexPatterns.EnglishArabicPattern" />
+            <RadzenRegexValidator Pattern="@RegexPatterns.NoLeadingSpacesPattern" Component="NameAr" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" />
+        </div>
+
+        <div class="col-xl-12 mb-2">
+            <RadzenLabel Text="@translationState.Translate("Description")" />
+            <RadzenTextArea class="form-control" Name="Description" Placeholder="@translationState.Translate("Description_Placeholder")" Rows="4" @bind-Value="Product.Description" />
+            <RadzenLengthValidator Max="500" Component="Description" Text="@translationState.Translate("Only_500_Characters_Allowed")" />
+            <RadzenRegexValidator Pattern="@RegexPatterns.NoLeadingSpacesPattern" Component="Description" Text="@translationState.Translate("No_Leading_Spaces_Allowed")" />
+        </div>
+    </div>
+    <div class="row popup-buttons-alignment">
+        <div class="col-12">
+            <RadzenButton Text="@translationState.Translate("Cancel")" Click="@(() => dialogService.Close(null))" ButtonStyle="ButtonStyle.Light" class="btn btn-light" />
+            <RadzenButton Text="@translationState.Translate("Submit")" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+@code {
+    #region Parameters, Variables Declaration
+
+    [Parameter]
+    public int? ProductId { get; set; }
+    public ProductListResponseDto ProductDetail { get; set; } = new();
+    public UpdateProductRequestDto Product { get; set; } = new UpdateProductRequestDto();
+    #endregion
+
+    #region Component Load
+
+    protected override async Task OnInitializedAsync()
+    {
+        spinnerService.Show();
+        if (ProductId != null)
+        {
+            var response = await apiHelper.SendGetAsync<ProductListResponseDto>($"Product/GetById?Id={(int)ProductId}");
+            if (response.IsSuccessStatusCode)
+            {
+                ProductDetail = response.ResultData;
+                Product = new UpdateProductRequestDto()
+                {
+                    ProductId = ProductDetail.Id,
+                    NameEn = ProductDetail.NameEn,
+                    NameAr = ProductDetail.NameAr,
+                    Description = ProductDetail.Description,
+                    IsActive = ProductDetail.IsActive,
+                    CreatedBy = ProductDetail.CreatedBy,
+                    CreatedDate = ProductDetail.CreatedDate
+                };
+            }
+            else
+            {
+                await invalidRequestHandler.ReturnBadRequestNotification(response);
+            }
+        }
+        spinnerService.Hide();
+    }
+
+    #endregion
+
+    #region Dialog Events
+
+    private async Task Save()
+    {
+
+        bool? dialogResponse = await dialogService.Confirm(
+           translationState.Translate("Sure_Submit"),
+           translationState.Translate("Confirm"),
+           new ConfirmOptions()
+           {
+               CancelButtonText = @translationState.Translate("Cancel"),
+               OkButtonText = @translationState.Translate("OK")
+           });
+        if (dialogResponse == true)
+        {
+            spinnerService.Show();
+
+            Product.ModifiedBy = loginState.UserDetail.UserId;
+            // Product.ModifiedBy = "Admin";
+            Product.ModifiedDate = DateTime.Now;
+
+            var response = await apiHelper.SendAsync<UpdateProductRequestDto, object>(HttpMethod.Post, "Product/UpdateProduct", Product, hasReturnData: false);
+            if (response.IsSuccessStatusCode)
+            {
+                spinnerService.Hide();
+                notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Detail = translationState.Translate("Product_Updated_Successfully")
+                });
+                
+                dialogService.Close(Product);
+            }
+            else
+            {
+                spinnerService.Hide();
+                await invalidRequestHandler.ReturnBadRequestNotification(response);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialogService.Close(null);
+    }
+    #endregion
+}

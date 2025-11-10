@@ -1,0 +1,67 @@
+﻿@* @using System.Threading
+@using PR.Master.Shared.Dtos.General.ResponseDtos
+@using Radzen.Blazor
+
+@inject NavigationManager NavigationManager
+
+
+@if (IsLoginPage)
+{
+    <div class="text-center dropdown bg-light">
+        <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+            <img src="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "assets/images/flags/us.jpg" : "assets/images/flags/kuwait.jpg")" alt="user-image" class="me-0 me-sm-1" height="12">
+            <span class="align-middle d-none d-sm-inline-block">@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "English" : "Arabic")</span> <i class="mdi mdi-chevron-down d-none d-sm-inline-block align-middle"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu">
+            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                <img src="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "assets/images/flags/kuwait.jpg" : "assets/images/flags/us.jpg")" alt="user-image" class="me-1" height="12"> <span class="align-middle">@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Arabic" : "English")</span>
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <RadzenDropDown class="ts-control form-select" Data="@Languages" ValueProperty="Culture" TextProperty="Name" TValue="string" @bind-Value="SelectedLanguage" Change="CultureChanged"
+    Style="padding:13px;">
+        <Template>
+            @{
+                var culture = context as LanguageListResponseDto;
+            }
+            <img class="avatar avatar-xss avatar-circle me-2" width="16" src="@culture.Flag">
+            @culture.Name
+        </Template>
+    </RadzenDropDown>
+}
+
+@code {
+    [Parameter]
+    public bool IsLoginPage { get; set; }
+    public List<LanguageListResponseDto> Languages { get; set; } = new List<LanguageListResponseDto>();
+    public string SelectedLanguage { get; set; } = Thread.CurrentThread.CurrentUICulture.Name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await apiHelper.SendGetAsync<List<LanguageListResponseDto>>($"Translations/GetLanguagesList", hasReturnData: true, isApiKeyAuth: true);
+        if (response.IsSuccessStatusCode)
+        {
+            Languages = response.ResultData;
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            await invalidRequestHandler.ReturnBadRequestNotification(response);
+        }
+    }
+    private void CultureChanged()
+    {
+        SetCulture(SelectedLanguage);
+    }
+
+    public void SetCulture(string culture)
+    {
+        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+
+        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+    }
+} *@

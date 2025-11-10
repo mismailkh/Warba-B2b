@@ -1,0 +1,21 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/WB.Admin/bin/Debug/net9.0
+/WB.Admin/obj
+/WB.Web/bin/Debug/net9.0
+/WB.Web/obj
+/WB.API/bin/Debug/net9.0
+/WB.API/obj
+/WB.Application/bin/Debug/net9.0
+/WB.Application/obj
+/WB.Domain/bin/Debug/net9.0
+/WB.Domain/obj
+/WB.Infrastructure/bin/Debug/net9.0
+/WB.Infrastructure/obj
+/WB.Shared/bin/Debug/net9.0
+/WB.Shared/obj
+/WB.Admin/bin/Release/net9.0
+/WB.Web/bin/Release/net9.0
